@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://tiktoktts.com/sitemap.xml

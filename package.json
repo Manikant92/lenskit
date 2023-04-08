@@ -1,0 +1,18 @@
+{
+    "name": "toktoktts",
+    "version": "1.0.0",
+    "description": "",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "remorses <beats.by.morse@gmail.com>",
+    "license": "ISC",
+    "devDependencies": {
+        "esbuild": "^0.17.15",
+        "esno": "0.16.3",
+        "typescript": "^5.0.4",
+        "vite": "^4.2.1",
+        "vitest": "^0.29.8"
+    }
+}

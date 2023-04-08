@@ -1,0 +1,24 @@
+{
+    "name": "db",
+    "version": "0.0.0",
+    "description": "",
+    "main": "index.ts",
+    "scripts": {
+        "generate": "doppler run -- prisma generate",
+        "postinstall": "prisma generate",
+        "studio": "doppler run -- prisma studio",
+        "push": "doppler run -c dev -- prisma db push && pnpm generate",
+        "push:prod": "doppler run -c production -- prisma db push"
+    },
+    "keywords": [],
+    "author": "remorses <beats.by.morse@gmail.com>",
+    "license": "ISC",
+    "dependencies": {
+        "@planetscale/database": "^1.7.0",
+        "@prisma/client": "^4.12.0",
+        "kysely": "^0.24.2",
+        "kysely-planetscale": "^1.3.0",
+        "mysql2": "^3.2.0",
+        "prisma": "^4.12.0"
+    }
+}
