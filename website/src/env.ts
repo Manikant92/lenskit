@@ -8,8 +8,8 @@ export const env = {
     GOOGLE_ID: process.env.GOOGLE_ID,
     GOOGLE_SECRET: process.env.GOOGLE_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
-    TIKTOK_SESSION_IDS: process.env.TIKTOK_SESSION_IDS,
-    LEMON_SQUEEZY_KEY: process.env.LEMON_SQUEEZY_KEY,
+    // TIKTOK_SESSION_IDS: process.env.TIKTOK_SESSION_IDS,
+    // LEMON_SQUEEZY_KEY: process.env.LEMON_SQUEEZY_KEY,
 }
 
 if (typeof window === 'undefined') {
