@@ -82,7 +82,7 @@ const PreviewButton = dynamic(() => import('@app/components/PreviewButton'), {
 let faviconUrl =
     'https://image-forwarder.notaku.so/aHR0cHM6Ly9ub3Rpb24tdGFza3MtYzc2NWM4ZS1oaGxqM2k2ZWlxLXVlLmEucnVuLmFwcC9lbW9qaS8lRjAlOUYlQTQlOTY='
 
-let img = require('@app/../public/og_image.png')
+let img = require('@app/../public/og-image.png')
 const ogImageUrl = new URL(img.src || img?.default.src, env.BASE_URL).toString()
 
 // console.log('ogImageUrl', ogImageUrl)
