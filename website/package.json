@@ -2,9 +2,9 @@
     "name": "website",
     "private": true,
     "scripts": {
-        "dev": "doppler run -c dev -- pnpm next dev --port 6054",
+        "dev": "doppler run -c dev -- pnpm next dev --port 7754",
         "test": "doppler run -- pnpm vitest",
-        "start": "doppler run -- next start --port 6054",
+        "start": "doppler run -- next start --port 7754",
         "check": "tsc --noEmit",
         "generate-previews": "doppler run -- pnpm esno scripts/generate-previews.ts",
         "build": "doppler run -- pnpm next build && pnpm copy-prisma",
