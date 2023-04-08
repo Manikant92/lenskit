@@ -2,8 +2,7 @@ import { DOWNLOADS_COUNT_COOKIE, FREE_CREDITS } from '@app/env'
 import { wrapMethod } from '@app/utils/sentry'
 
 import { getJwt, getOrgCredits, getOrgSubscriptions } from '@app/utils/ssr'
-import { tikTokTTSServer } from '@app/utils/tts'
-import { removeNonSpoken } from '@app/utils/utils'
+
 
 import cuid from 'cuid'
 import { prisma } from 'db'
@@ -16,29 +15,6 @@ export const config = {
 export async function example({}) {
     const { req, res } = getContext()
     const { userId } = await getJwt({ req })
-}
-
-export async function generateTikTokVoice({ text, voice }) {
-    const { req, res } = getContext()
-    const { userId } = await getJwt({ req }).catch(() => {
-        return { userId: null }
-    })
-    if (!text) {
-        return
-    }
-    text = removeNonSpoken(text)
-    if (userId) {
-        await prisma.generation.create({
-            data: {
-                chars: text.length,
-                words: text.split(' ').length,
-                // TODO use orgId after next auth has a way to refresh JWT
-                orgId: userId,
-            },
-        })
-    }
-
-    return await tikTokTTSServer({ text, voice })
 }
 
 export async function getSubscriptions({}) {

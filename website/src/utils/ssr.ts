@@ -38,7 +38,7 @@ export async function getOrgCredits({ orgId }) {
                 orgId,
             },
             _sum: {
-                words: true,
+                creditsUsed: true,
             },
         }),
         // prisma.subscription.findFirst({
@@ -66,9 +66,9 @@ export async function getOrgCredits({ orgId }) {
     )
     let free = !payments?.length
     return {
-        remaining: totalCredits - allWords._sum.words,
+        remaining: totalCredits - allWords._sum.creditsUsed,
         total: totalCredits,
-        used: allWords?._sum?.words || 0,
+        used: allWords?._sum?.creditsUsed || 0,
         free,
     }
 }

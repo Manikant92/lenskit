@@ -1,4 +1,3 @@
-import Page, { getStaticProps } from './tiktok'
-
-export { getStaticProps }
-export default Page
+export default function Page() {
+    return null
+}

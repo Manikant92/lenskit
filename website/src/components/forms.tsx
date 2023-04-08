@@ -48,11 +48,12 @@ export function UploadStringButton({
                 ref={inputRef}
                 style={{ display: 'none' }}
             />
+            {/* @ts-ignore */}
             <Button
                 bg={bg}
                 leftIcon={<UploadIcon className='w-5 h-5' />}
                 size='sm'
-                shadow={'sm'}
+                shadow={'sm' as any}
                 children={'Upload'}
                 onClick={() => {
                     inputRef.current.click()
