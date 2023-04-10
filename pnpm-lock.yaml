@@ -166,6 +166,7 @@ importers:
       react-dom: 18.2.0
       react-hook-form: ^7.43.9
       react-hot-toast: ^2.2.0
+      react-masonry-css: ^1.0.16
       stability-sdk: Stability-AI/api-interfaces
       superjson: ^1.9.1
       swr: ^2.1.2
@@ -230,6 +231,7 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       react-hook-form: 7.43.9_react@18.2.0
       react-hot-toast: 2.4.0_biqbaboplfbrettd7655fr4n2y
+      react-masonry-css: 1.0.16_react@18.2.0
       stability-sdk: github.com/Stability-AI/api-interfaces/193a1e41a984c6e452aa1f99d9c1c20c15c692a4_encoding@0.1.13
       superjson: 1.12.2
       swr: 2.1.2_react@18.2.0
@@ -7238,6 +7240,14 @@ packages:
   /react-is/17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
     dev: true
+
+  /react-masonry-css/1.0.16_react@18.2.0:
+    resolution: {integrity: sha512-KSW0hR2VQmltt/qAa3eXOctQDyOu7+ZBevtKgpNDSzT7k5LA/0XntNa9z9HKCdz3QlxmJHglTZ18e4sX4V8zZQ==}
+    peerDependencies:
+      react: '>=16.0.0'
+    dependencies:
+      react: 18.2.0
+    dev: false
 
   /react-remove-scroll-bar/2.3.4_3stiutgnnbnfnf3uowm5cip22i:
     resolution: {integrity: sha512-63C4YQBUt0m6ALadE9XV56hV8BgJWDmmTPY758iIJjfQKt2nYwoUrPk0LXRXcB/yIj82T1/Ixfdpdk68LwIB0A==}
