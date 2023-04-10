@@ -1,124 +1,120 @@
 import classNames from 'classnames'
+import Konva from 'konva'
+
 import Masonry from 'react-masonry-css'
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 
 // import "fabric-history"
 import { Pane } from 'tweakpane'
 
 import { objFromArr } from '@app/utils/utils'
+import { UploadButton } from './upload'
+import { atom, useAtom } from 'jotai'
+import { Button } from 'beskar/landing'
 
 export function LeftPane() {
     const className =
-        'flex-shrink-0 h-full max-h-full bg-[color:var(--tweakpane-bg)] w-[300px] flex flex-col'
+        'flex-shrink-0 h-full max-h-full bg-[color:var(--tweakpane-bg)] w-[300px] lg:w-[500px] flex flex-col'
 
     return (
         <div className={className}>
             <LeftPaneTop />
 
             <div className='flex-auto'></div>
-            <LeftPaneBottom />
         </div>
     )
 }
 
-const presets = {
-    opengraph: {
-        width: 1200,
-        height: 630,
-    },
-    twitter: {
-        width: 1200,
-        height: 670,
-    },
-    facebook: {
-        width: 1200,
-        height: 670,
-    },
-    story: {
-        height: 1920,
-        width: 1080,
-    },
-    pinterest: {
-        width: 1000,
-        height: 1500,
-    },
-    square: {
-        width: 1000,
-        height: 1000,
-    },
+const imageUrlAtom = atom<string>('')
+
+let layer: Konva.Layer
+let stage: Konva.Stage
+function LeftPaneTop() {
+    const [imageUrl, setImageUrl] = useAtom(imageUrlAtom)
+    const container = useRef<HTMLDivElement>(null)
+    useEffect(() => {
+        if (layer) {
+            return
+        }
+        Promise.resolve().then(async () => {
+            console.log('konva')
+            const width = container.current.clientWidth
+            const height = container.current.clientHeight
+
+            stage = new Konva.Stage({
+                container: container.current,
+                width: width,
+                height: height,
+            })
+
+            layer = new Konva.Layer({})
+
+            stage.add(layer)
+
+            addImage(
+                'https://storage.googleapis.com/generated-ai-uploads/2fa9e1d5-ca86-4e74-8688-cfb1b27106a54419983029_bd466f7019_b%2520Background%2520Removed.png',
+            )
+        })
+    }, [])
+
+    const [maskImageUrl, setMaskImageUrl] = useState('')
+    return (
+        <div className='dark:bg-gray-900 p-4 flex-shrink-0 flex flex-col gap-2 w-full'>
+            <UploadButton
+                className='text-sm w-full'
+                onUpload={({ publicUrl }) => {
+                    setImageUrl(publicUrl)
+                }}
+            />
+            <div
+                ref={container}
+                className='w-full aspect-square border rounded-md overflow-hidden'
+            ></div>
+            <Button
+                onClick={() => {
+                    stage && setMaskImageUrl(getMaskFromCanvas(stage))
+                }}
+            >
+                Generate debug mask image
+            </Button>
+            <img src={maskImageUrl} alt='' className='w-full aspect-square' />
+        </div>
+    )
 }
 
-function LeftPaneTop() {
-    const container = useRef()
+function getMaskFromCanvas(stage: Konva.Stage) {
+    let cloned: Konva.Stage = stage.clone()
+    cloned.cache()
+    cloned.filters([Konva.Filters.Grayscale])
+    let url = stage.toDataURL()
+    return url
+}
 
-    useEffect(() => {
-        const pane = new Pane({ title: 'canvas', container: container.current })
-        const params = new Proxy(
-            {},
-            {
-                set(target, prop, value) {
-                    try {
-                        target[prop] = value
-                    } finally {
-                        return true
-                    }
-                },
-                get(target, prop) {
-                    if (prop === 'preset') {
-                        //   return "none"
-                        return (
-                            Object.keys(presets).find((key) => {
-                                const p = presets[key]
-                                // return (
-                                //     p.width === canvas.canvasBg?.width &&
-                                //     p.height === canvas.canvasBg?.height
-                                // )
-                            }) || 'none'
-                        )
-                    }
-                    return target[prop] || 0
-                },
-            },
-        )
-        pane.addInput(params, 'preset' as any, {
-            options: objFromArr(['none', ...Object.keys(presets)]),
-        }).on('change', (e) => {
-            // @ts-ignore
-            document.activeElement?.blur()
-            pane.refresh()
-            // e.target.controller_.view.element.blur()
+function addImage(publicUrl) {
+    var imageObj = new Image()
+    imageObj.onload = function (img) {
+        let width = 200
+        let height = 137
+        var imgNode = new Konva.Image({
+            image: imageObj,
+            x: layer.width() / 2 - width / 2,
+            y: layer.height() / 2 - height / 2,
+            width,
+            height,
+            draggable: true,
         })
 
-        pane.addInput(params, 'width')
-        pane.addInput(params, 'height')
-
-        return () => {
-            pane.dispose()
-        }
-    }, [])
-    return (
-        <div className='flex-shrink-0'>
-            <div ref={container} className=''></div>
-        </div>
-    )
-}
-
-function LeftPaneBottom() {
-    const container = useRef()
-    useEffect(() => {
-        const pane = new Pane({ title: 'demo', container: container.current })
-        const params = { 'some text': 'sdf' }
-        pane.addInput(params, 'some text', { alpha: true, view: 'color' })
-        return () => {
-            pane.dispose()
-        }
-    }, [])
-    return (
-        <div className='flex-shrink-0'>
-            <div ref={container} className=''></div>
-        </div>
-    )
+        // darthNode.draggable(true)
+        layer.add(imgNode)
+        var tr1 = new Konva.Transformer({
+            nodes: [imgNode],
+            centeredScaling: true,
+        })
+        layer.add(tr1)
+    }
+    imageObj.crossOrigin = 'Anonymous'
+    imageObj.src = publicUrl
 }
 
 export function App({}) {
@@ -168,7 +164,7 @@ export function App({}) {
                             </div>
                         ))}
                 </Masonry>
-{/* 
+                {/* 
                 <div
                     className={classNames(
                         'flex-1 relative items-start gap-[40px]  space-y-12 place-content-start p-[40px] columns-4 w-full h-full min-w-0 bg-gray-600',
@@ -197,8 +193,6 @@ export function App({}) {
     )
 }
 
-function GenerationImage({ aspectRatio }) {}
-
 function aspectRatioToStyle(aspectRatio: number) {
     // aspectRatio is width / height
     if (!aspectRatio) {
@@ -209,4 +203,15 @@ function aspectRatioToStyle(aspectRatio: number) {
     let gcd = getGCD(above, below)
     above /= gcd
     below /= gcd
+}
+
+// function from https://stackoverflow.com/a/15832662/512042
+function downloadURI(uri, name) {
+    var link = document.createElement('a')
+    link.download = name
+    link.href = uri
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    // delete link;
 }

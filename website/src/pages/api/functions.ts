@@ -1,8 +1,9 @@
-import { DOWNLOADS_COUNT_COOKIE, FREE_CREDITS } from '@app/env'
+import { DOWNLOADS_COUNT_COOKIE, FREE_CREDITS, env } from '@app/env'
+import * as uuid from 'uuid'
+import { Storage } from '@google-cloud/storage'
 import { wrapMethod } from '@app/utils/sentry'
 
 import { getJwt, getOrgCredits, getOrgSubscriptions } from '@app/utils/ssr'
-
 
 import cuid from 'cuid'
 import { prisma } from 'db'
@@ -121,3 +122,31 @@ export const updateOrg = async ({ orgId, name }) => {
 //     })
 //     return org
 // }
+
+export async function uploadFile({ filename }) {
+    const { req } = getContext()
+    await getJwt({ req })
+    const storage = new Storage({
+        // projectId: env.GOOGLE_PROJECT_ID,
+        credentials: {
+            client_email: env.GOOGLE_SERVICE_EMAIL,
+            private_key: env.GOOGLE_SERVICE_PRIVATE_KEY,
+        },
+    })
+
+    const bucket = storage.bucket('generated-ai-uploads')
+    const fullName = uuid.v4() + filename
+    const file = bucket.file(fullName)
+
+    const [response] = await file.generateSignedPostPolicyV4({
+        expires: Date.now() + 2 * 60 * 1000,
+        conditions: [
+            ['content-length-range', 0, 1024 * 1024 * 5], // Content-Length between 0 to 5 Mb
+        ],
+        fields: { 'x-goog-meta-test': 'data' },
+    })
+    return {
+        ...response,
+        publicUrl: file.publicUrl(),
+    }
+}

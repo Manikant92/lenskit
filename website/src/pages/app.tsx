@@ -1,14 +1,20 @@
-import { App } from "@app/components/app"
-import { useEffect, useState } from "react"
+import { useSession } from 'next-auth/react'
+import dynamic from 'next/dynamic'
+import { useEffect, useState } from 'react'
+
+const App = dynamic(() => import('../components/app').then((x) => x.App), {
+    ssr: false,
+})
 
 export default function Page({}) {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-  if (!mounted) {
-    return null
-  }
+    const {} = useSession({ required: true })
+    const [mounted, setMounted] = useState(false)
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+    if (!mounted) {
+        return null
+    }
 
-  return <App />
+    return <App />
 }
