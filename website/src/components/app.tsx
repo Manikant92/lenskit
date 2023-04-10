@@ -40,8 +40,10 @@ function LeftPaneTop() {
         }
         Promise.resolve().then(async () => {
             console.log('konva')
-            const width = w
-            const height = h
+            let width = container.current?.clientWidth || w
+            let height = container.current?.clientHeight || h
+            width = w
+            height = h
 
             let stage = new Konva.Stage({
                 container: container.current,
@@ -50,6 +52,9 @@ function LeftPaneTop() {
             })
 
             let layer = new Konva.Layer({ height, width })
+            layer.canvas.context.imageSmoothingEnabled = true
+            layer.canvas.context['imageSmoothingQuality'] = 'high'
+
             init({ stage, layer })
 
             stage.add(layer)
@@ -94,27 +99,32 @@ function LeftPaneTop() {
             },
         ])
     }, [])
+    useEffect(() => {
+        let wantedW = container.current.parentElement?.clientWidth || 0
+        let scaleFactor = wantedW / w
+        container.current.style.transform = `scale(${scaleFactor})`
+    }, [])
     return (
-        <div className='h-full w-[300px] lg:w-[500px] overflow-y-auto max-h-full dark:bg-gray-900 p-6 pt-[30px] flex-shrink-0 flex flex-col gap-3 '>
-            <div className='flex flex-col gap-3'>
-                <svg
+        <div className='h-full w-[300px] lg:w-[500px] overflow-y-scroll max-h-full dark:bg-gray-900 p-6 pt-[30px] flex-shrink-0 flex flex-col gap-3 '>
+            <div
+                style={{
+                    // width: w + 'px',
+                    // height: h + 'px',
+                    // transform: 'scale(${scaleFactor})',
+                    aspectRatio,
+                }}
+                className='flex relative shrink-0 w-full border flex-col gap-3 '
+            >
+                <div
+                    ref={container}
                     style={{
-                        aspectRatio: aspectRatio,
+                        // width: w + 'px',
+                        // height: h + 'px',
+                        // transform: 'scale(${scaleFactor})',
+                        aspectRatio,
                     }}
-                    className='w-full aspect-square rounded'
-                    viewBox={`0 0 ${w} ${h}`}
-                >
-                    <foreignObject x='0' y='0' width='100%' height='100%'>
-                        <div
-                            ref={container}
-                            style={{
-                                width: w + 'px',
-                                height: h + 'px',
-                            }}
-                            className=' bg-white border rounded-md '
-                        ></div>
-                    </foreignObject>
-                </svg>
+                    className='absolute left-0 top-0 origin-top-left bg-white border rounded-md '
+                ></div>
             </div>
 
             <div className='space-y-2 text-sm'>
@@ -214,15 +224,17 @@ function LeftPaneTop() {
 
 // aspect ratio is width / height
 function stageToDataURL(_stage: Konva.Stage) {
+    const state = useStore.getState()
+    const { width, height } = state
     // let width = 512
     // let height = 512 * aspectRatio
     let clone: Konva.Stage = _stage.clone()
-    // let adjust = width / clone.width()
+    let adjust = width / clone.width()
 
-    // clone.size({ height, width })
+    clone.size({ height, width })
 
     clone.draw()
-    // clone.scale({ x: adjust, y: adjust })
+    clone.scale({ x: adjust, y: adjust })
 
     // needed to apply filters
     clone.find('Image').forEach((image) => {
@@ -378,6 +390,7 @@ function setInitImage({
                 height,
                 draggable: true,
             })
+
             layer.removeChildren()
             // darthNode.draggable(true)
             layer.add(imgNode)
