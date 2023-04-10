@@ -19,7 +19,7 @@ import { LightningBoltIcon } from '@heroicons/react/solid'
 import { GeneratedImage, generateImages } from '@app/pages/api/functions'
 import { useStore } from '@app/utils/store'
 
-let debugMask = env.NEXT_PUBLIC_ENV !== 'production' && false
+let debugMask = env.NEXT_PUBLIC_ENV !== 'production' && true
 
 const imageUrlAtom = atom<string>('')
 
@@ -30,6 +30,8 @@ function LeftPaneTop() {
         state.stage,
         state.layer,
     ])
+    const [w, h] = useStore((state) => [state.width, state.height])
+    let aspectRatio = `${w}/${h}`
     const [imageUrl, setImageUrl] = useAtom(imageUrlAtom)
     const container = useRef<HTMLDivElement>(null)
     useEffect(() => {
@@ -38,8 +40,8 @@ function LeftPaneTop() {
         }
         Promise.resolve().then(async () => {
             console.log('konva')
-            const width = container.current.clientWidth
-            const height = container.current.clientHeight
+            const width = w
+            const height = h
 
             let stage = new Konva.Stage({
                 container: container.current,
@@ -94,35 +96,39 @@ function LeftPaneTop() {
     }, [])
     return (
         <div className='h-full w-[300px] lg:w-[500px] overflow-y-auto max-h-full dark:bg-gray-900 p-6 pt-[30px] flex-shrink-0 flex flex-col gap-3 '>
-            <div className='flex flex-col gap-2'>
-                <div
+            <div className='flex flex-col gap-3'>
+                <svg
                     style={{
-                        aspectRatio: '1/1',
-                        transform: `scale(calc(80%))`,
+                        aspectRatio: aspectRatio,
                     }}
-                    className='origin-top-left flex-1'
+                    className='w-full aspect-square rounded'
+                    viewBox={`0 0 ${w} ${h}`}
                 >
-                    <div
-                        ref={container}
-                        style={{
-                            width: '512px',
-                            height: '512px',
-                        }}
-                        className='absolute bg-white border rounded-md '
-                    ></div>
-                </div>
-                <div className='space-y-2 text-sm'>
-                    <UploadButton
-                        className='text-sm w-full'
-                        onUpload={({ publicUrl }) => {
-                            setImageUrl(publicUrl)
-                            setInitImage({ publicUrl, layer })
-                        }}
-                    />
-                    <div className=''>Object type</div>
-                    <Input placeholder='bottle' />
-                </div>
+                    <foreignObject x='0' y='0' width='100%' height='100%'>
+                        <div
+                            ref={container}
+                            style={{
+                                width: w + 'px',
+                                height: h + 'px',
+                            }}
+                            className=' bg-white border rounded-md '
+                        ></div>
+                    </foreignObject>
+                </svg>
             </div>
+
+            <div className='space-y-2 text-sm'>
+                <UploadButton
+                    className='text-sm w-full'
+                    onUpload={({ publicUrl }) => {
+                        setImageUrl(publicUrl)
+                        setInitImage({ publicUrl, layer })
+                    }}
+                />
+                <div className=''>Object type</div>
+                <Input placeholder='bottle' />
+            </div>
+
             {debugMask && (
                 <>
                     <div className='flex gap-2'>
@@ -144,7 +150,10 @@ function LeftPaneTop() {
                     <img
                         src={debugImageUrl}
                         alt='debug mask'
-                        className='border w-full aspect-square'
+                        style={{
+                            aspectRatio: aspectRatio,
+                        }}
+                        className='border w-full '
                     />
                 </>
             )}
@@ -179,6 +188,9 @@ function LeftPaneTop() {
                 <div className=''>Prompt</div>
                 <Input
                     value={prompt}
+                    onChange={(e) => {
+                        setPrompt(e.target.value)
+                    }}
                     placeholder='Can on top of a rock in a forest'
                     className='text-sm'
                 />
@@ -201,16 +213,16 @@ function LeftPaneTop() {
 }
 
 // aspect ratio is width / height
-function stageToDataURL(_stage: Konva.Stage, aspectRatio = 1) {
-    let width = 512
-    let height = 512 * aspectRatio
+function stageToDataURL(_stage: Konva.Stage) {
+    // let width = 512
+    // let height = 512 * aspectRatio
     let clone: Konva.Stage = _stage.clone()
-    let adjust = width / clone.width()
+    // let adjust = width / clone.width()
 
-    clone.size({ height, width })
+    // clone.size({ height, width })
 
     clone.draw()
-    clone.scale({ x: adjust, y: adjust })
+    // clone.scale({ x: adjust, y: adjust })
 
     // needed to apply filters
     clone.find('Image').forEach((image) => {
@@ -219,8 +231,8 @@ function stageToDataURL(_stage: Konva.Stage, aspectRatio = 1) {
     let url = clone.toDataURL({
         pixelRatio: 1,
         // quality: 100,
-        width,
-        height,
+        // width,
+        // height,
         mimeType: 'image/png',
     })
     clone.destroy()
@@ -347,7 +359,7 @@ function setInitImage({
     publicUrl: string
     layer: Konva.Layer
 }) {
-    layer = useStore.getState().layer
+    // layer = useStore.getState().layer
     return new Promise<Konva.Image>((resolve) => {
         var imageObj = new Image()
         imageObj.onload = function (img) {
@@ -372,6 +384,8 @@ function setInitImage({
             var tr1 = new Konva.Transformer({
                 nodes: [imgNode],
                 centeredScaling: true,
+                anchorStrokeWidth: 4,
+                borderStrokeWidth: 4,
             })
 
             layer.add(tr1)
@@ -385,6 +399,7 @@ function setInitImage({
 function Images({}) {
     const images = useStore((store) => store.resultImages)
     const loadingImages = useStore((store) => store.loadingImages)
+    const aspectRatio = useStore((store) => `${store.width}/${store.height}`)
     return (
         <div className='px-[40px] pt-[30px] w-full h-full overflow-y-auto '>
             <style jsx global>{``}</style>
@@ -398,7 +413,14 @@ function Images({}) {
                 columnClassName='space-y-8 pl-[30px]'
             >
                 {Array.from({ length: loadingImages })?.map((image, i) => {
-                    return <GenImage isLoading key={'loading' + i} src={''} />
+                    return (
+                        <GenImage
+                            aspectRatio={aspectRatio}
+                            isLoading
+                            key={'loading' + i}
+                            src={''}
+                        />
+                    )
                 })}
                 {images?.map((image, i) => {
                     return (
@@ -413,8 +435,8 @@ function Images({}) {
     )
 }
 
-function GenImage({ isLoading = false, src = '' }) {
-    const aspectRatio = '1/1'
+function GenImage({ aspectRatio, isLoading = false, src = '' }) {
+    //  aspectRatio = '1/1'
     return (
         <div
             style={{
