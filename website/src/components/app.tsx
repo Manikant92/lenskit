@@ -424,11 +424,18 @@ function Images({}) {
                 })}
                 {images?.map((image, i) => {
                     return (
-                        <GenImage key={image.publicUrl} src={image.publicUrl} />
+                        <GenImage
+                            aspectRatio={aspectRatio}
+                            key={image.publicUrl}
+                            src={image.publicUrl}
+                        />
                     )
                 })}
                 {Array.from({ length: 6 }).map((_, i) => (
-                    <GenImage key={'placeholder' + i} />
+                    <GenImage
+                        aspectRatio={aspectRatio}
+                        key={'placeholder' + i}
+                    />
                 ))}
             </Masonry>
         </div>
