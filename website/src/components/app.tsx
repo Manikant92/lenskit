@@ -108,21 +108,12 @@ function LeftPaneTop() {
         <div className='h-full w-[300px] lg:w-[500px] overflow-y-scroll max-h-full dark:bg-gray-900 p-6 pt-[30px] flex-shrink-0 flex flex-col gap-3 '>
             <div
                 style={{
-                    // width: w + 'px',
-                    // height: h + 'px',
-                    // transform: 'scale(${scaleFactor})',
                     aspectRatio,
                 }}
                 className='flex relative shrink-0 w-full border flex-col gap-3 '
             >
                 <div
                     ref={container}
-                    style={{
-                        // width: w + 'px',
-                        // height: h + 'px',
-                        // transform: 'scale(${scaleFactor})',
-                        aspectRatio,
-                    }}
                     className='absolute left-0 top-0 origin-top-left bg-white border rounded-md '
                 ></div>
             </div>
