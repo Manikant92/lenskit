@@ -31,6 +31,17 @@ import { env } from '@app/env'
 
 GRPCWeb.setDefaultTransport(NodeHttpTransport())
 
+export type EngineId =
+    | 'stable-inpainting-512-v2-0'
+    | 'stable-inpainting-v1-0'
+    | 'stable-diffusion-768-v2-1'
+    | 'stable-diffusion-512-v2-1'
+    | 'stable-diffusion-768-v2-0'
+    | 'stable-diffusion-512-v2-0'
+    | 'stable-diffusion-v1-5'
+    | 'stable-diffusion-v1'
+    | 'esrgan-v1-x2plus'
+
 // Authenticate using your API key, don't commit your key to a public repository!
 const myMetadata = new GRPCWeb.Metadata()
 myMetadata.set('Authorization', 'Bearer ' + env.STABILITY_KEY)
@@ -143,15 +154,18 @@ export const isNSFWFilteredArtifact = (
 
 /** Builds a generation request for a specified engine with the specified parameters. */
 export function buildGenerationRequest(
-    engineID: string,
+    engineID: EngineId,
     params: GenerationRequestParams,
 ): GenerationRequest {
     if (params.type === 'upscaling') {
         const request = new Generation.Request()
         request.setEngineId(engineID)
         request.setRequestedType(Generation.ArtifactType.ARTIFACT_IMAGE)
-        request.setClassifier(new Generation.ClassifierParameters())
-
+        let c = new Generation.ClassifierParameters()
+        
+        request.setClassifier(c)
+        // request.setConditioner(new Generation.ConditionerParameters())
+        
         const imageParams = new Generation.ImageParameters()
         if ('width' in params && !!params.width) {
             imageParams.setWidth(params.width)
@@ -276,7 +290,8 @@ function createInitImagePrompt(imageBinary: Buffer): Generation.Prompt {
 
     const initImageParameters = new Generation.PromptParameters()
     initImageParameters.setInit(true)
-
+    initImageParameters.setWeight(2)
+    // initImageParameters.setWeight(50)
     const initImagePrompt = new Generation.Prompt()
     initImagePrompt.setParameters(initImageParameters)
     initImagePrompt.setArtifact(initImageArtifact)
@@ -337,4 +352,32 @@ function extractArtifacts(answers: Generation.Answer[]): GenerationArtifacts {
     }
 
     return { filteredArtifacts, imageArtifacts }
+}
+
+export async function getModels() {
+    const apiHost = 'https://api.stability.ai'
+    const url = `${apiHost}/v1/engines/list`
+
+    const apiKey = env.STABILITY_KEY
+    if (!apiKey) throw new Error('Missing Stability API key.')
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${apiKey}`,
+        },
+    })
+
+    if (!response.ok) {
+        throw new Error(`Non-200 response: ${await response.text()}`)
+    }
+
+    // Do something with the payload...
+    const payload = (await response.json()) as Array<{
+        id: string
+        name: string
+        description: string
+        type: string
+    }>
+    return payload
 }

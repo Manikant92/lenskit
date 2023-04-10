@@ -1,3 +1,3 @@
-export default function Page() {
-    return null
-}
+import App from './app'
+
+export default App

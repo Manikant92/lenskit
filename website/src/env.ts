@@ -2,7 +2,7 @@ import path from 'path'
 import { AppError } from './utils/errors'
 
 export const env = {
-    // NEXT_PUBLIC_ENV: process.env.NEXT_PUBLIC_ENV,
+    NEXT_PUBLIC_ENV: process.env.NEXT_PUBLIC_ENV,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     SECRET: process.env.SECRET,
     GOOGLE_ID: process.env.GOOGLE_ID,

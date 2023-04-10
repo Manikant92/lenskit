@@ -80,3 +80,8 @@ export function createBuyLink({ email, orgId }) {
     }
     return url.toString()
 }
+
+export function objFromArr(arr: any[]) {
+    return Object.fromEntries(arr.map((x) => [x, x]))
+  }
+  

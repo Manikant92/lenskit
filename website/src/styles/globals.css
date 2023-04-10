@@ -1,7 +1,10 @@
 :root {
     --page-max-width: 1200px;
     --pagePadding: 20px;
+    --tweakpane-bg: hsla(230, 7%, 20%, 1);
 }
+
+
 
 /* Fix all that shitty libraries (like chakra) that try to remove scroll bar and layout shift everything */
 html > body {
