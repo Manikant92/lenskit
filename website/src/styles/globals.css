@@ -4,8 +4,6 @@
     --tweakpane-bg: hsla(230, 7%, 20%, 1);
 }
 
-
-
 /* Fix all that shitty libraries (like chakra) that try to remove scroll bar and layout shift everything */
 html > body {
     margin-right: 0 !important;
@@ -67,4 +65,24 @@ body {
 .scrollbar-hide {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
+}
+
+[data-rmiz-modal-overlay='hidden'] {
+    background-color: rgba(255, 255, 255, 0);
+}
+[data-rmiz-modal-overlay='visible'] {
+    background-color: rgba(255, 255, 255, 0.6);
+    backdrop-filter: saturate(180%) blur(60px);
+    -webkit-backdrop-filter: saturate(180%) blur(60px);
+}
+.dark [data-rmiz-modal-overlay='hidden'] {
+    background-color: rgba(0, 0, 0, 0);
+}
+.dark [data-rmiz-modal-overlay='visible'] {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+[data-rmiz-btn-zoom],
+[data-rmiz-btn-unzoom] {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
 }

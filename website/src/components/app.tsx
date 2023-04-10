@@ -1,9 +1,11 @@
 import classNames from 'classnames'
+import Zoom from 'react-medium-image-zoom'
+
 import Konva from 'konva'
 
 import Masonry from 'react-masonry-css'
 
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, Fragment } from 'react'
 
 // import "fabric-history"
 import { Pane } from 'tweakpane'
@@ -11,30 +13,23 @@ import { Pane } from 'tweakpane'
 import { objFromArr } from '@app/utils/utils'
 import { UploadButton } from './upload'
 import { atom, useAtom } from 'jotai'
-import { Button, Input } from 'beskar/landing'
+import { Button, Input, useThrowingFn } from 'beskar/landing'
 import { env } from '@app/env'
 import { LightningBoltIcon } from '@heroicons/react/solid'
+import { GeneratedImage, generateImages } from '@app/pages/api/functions'
+import { useStore } from '@app/utils/store'
 
-export function LeftPane() {
-    const className =
-        'flex-shrink-0 h-full max-h-full bg-[color:var(--tweakpane-bg)] w-[300px] lg:w-[500px] flex flex-col'
-
-    return (
-        <div className={className}>
-            <LeftPaneTop />
-
-            <div className='flex-auto'></div>
-        </div>
-    )
-}
-
-const imageUrlAtom = atom<string>('')
 let debugMask = env.NEXT_PUBLIC_ENV !== 'production' && false
 
-let layer: Konva.Layer
-let stage: Konva.Stage
+const imageUrlAtom = atom<string>('')
 
 function LeftPaneTop() {
+    const [addNewImages, init, stage, layer] = useStore((state) => [
+        state.addNewImages,
+        state.init,
+        state.stage,
+        state.layer,
+    ])
     const [imageUrl, setImageUrl] = useAtom(imageUrlAtom)
     const container = useRef<HTMLDivElement>(null)
     useEffect(() => {
@@ -46,37 +41,82 @@ function LeftPaneTop() {
             const width = container.current.clientWidth
             const height = container.current.clientHeight
 
-            stage = new Konva.Stage({
+            let stage = new Konva.Stage({
                 container: container.current,
                 width: width,
                 height: height,
             })
 
-            layer = new Konva.Layer({ height, width })
+            let layer = new Konva.Layer({ height, width })
+            init({ stage, layer })
 
             stage.add(layer)
 
-            // let image = await addImage(
-            //     'https://storage.googleapis.com/generated-ai-uploads/2fa9e1d5-ca86-4e74-8688-cfb1b27106a54419983029_bd466f7019_b%2520Background%2520Removed.png',
-            // )
+            let image = await setInitImage({
+                publicUrl:
+                    'https://generated-ai-uploads.storage.googleapis.com/6214c553-a7ce-4a9d-8179-e34edbf91d12-CocaLatt%252520Background%252520Removed.png',
+                layer,
+            })
         })
     }, [])
 
-    const [maskImageUrl, setMaskImageUrl] = useState('')
+    const [debugImageUrl, setDebugImageUrl] = useState('')
     const [selectedTemplateIndex, setSelectedTemplate] = useState(0)
+    const [prompt, setPrompt] = useState(
+        templateImages[selectedTemplateIndex]?.prompt || '',
+    )
+    const setLoadingImages = useStore((state) => state.setLoadingImages)
+    const { fn: generate, isLoading } = useThrowingFn({
+        async fn() {
+            try {
+                let samples = 3
+                setLoadingImages(samples)
+                const results = await generateImages({
+                    samples,
+                    initImageUrl: getInitFromCanvas(stage),
+                    maskImageUrl: getMaskFromCanvas(stage),
+                    prompt,
+                })
+                addNewImages(results)
+            } finally {
+                setLoadingImages(0)
+            }
+        },
+        errorMessage: 'Failed to generate image',
+    })
+    useEffect(() => {
+        addNewImages([
+            {
+                publicUrl:
+                    'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/bde9a717-e664-4d4a-df9c-cdf587f86500/public',
+            },
+        ])
+    }, [])
     return (
-        <div className='dark:bg-gray-900 p-6 flex-shrink-0 flex flex-col gap-2 w-full'>
-            <div className='flex flex-row gap-2'>
+        <div className='h-full w-[300px] lg:w-[500px] overflow-y-auto max-h-full dark:bg-gray-900 p-6 pt-[30px] flex-shrink-0 flex flex-col gap-3 '>
+            <div className='flex flex-col gap-2'>
                 <div
-                    ref={container}
-                    className='w-full aspect-square border rounded-md overflow-hidden'
-                ></div>
-                <div className='space-y-2 text-sm p-2 px-4'>
+                    style={{
+                        aspectRatio: '1/1',
+                        transform: `scale(calc(80%))`,
+                    }}
+                    className='origin-top-left flex-1'
+                >
+                    <div
+                        ref={container}
+                        style={{
+                            width: '512px',
+                            height: '512px',
+                        }}
+                        className='absolute bg-white border rounded-md '
+                    ></div>
+                </div>
+                <div className='space-y-2 text-sm'>
                     <UploadButton
                         className='text-sm w-full'
                         onUpload={({ publicUrl }) => {
                             setImageUrl(publicUrl)
-                            setInitImage(publicUrl)
+                            setInitImage({ publicUrl, layer })
                         }}
                     />
                     <div className=''>Object type</div>
@@ -85,16 +125,25 @@ function LeftPaneTop() {
             </div>
             {debugMask && (
                 <>
-                    <Button
-                        onClick={() => {
-                            setMaskImageUrl(getMaskFromCanvas())
-                        }}
-                    >
-                        Generate debug mask image
-                    </Button>
+                    <div className='flex gap-2'>
+                        <Button
+                            onClick={() => {
+                                setDebugImageUrl(getMaskFromCanvas(stage))
+                            }}
+                        >
+                            Debug mask image
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                setDebugImageUrl(getInitFromCanvas(stage))
+                            }}
+                        >
+                            Debug init image
+                        </Button>
+                    </div>
                     <img
-                        src={maskImageUrl}
-                        alt=''
+                        src={debugImageUrl}
+                        alt='debug mask'
                         className='border w-full aspect-square'
                     />
                 </>
@@ -113,6 +162,7 @@ function LeftPaneTop() {
                                 key={img.url + i}
                                 onClick={() => {
                                     setSelectedTemplate(i)
+                                    setPrompt(img.prompt)
                                 }}
                             >
                                 <img
@@ -128,7 +178,7 @@ function LeftPaneTop() {
             <div className='space-y-2'>
                 <div className=''>Prompt</div>
                 <Input
-                    value={templateImages[selectedTemplateIndex]?.prompt || ''}
+                    value={prompt}
                     placeholder='Can on top of a rock in a forest'
                     className='text-sm'
                 />
@@ -138,7 +188,9 @@ function LeftPaneTop() {
                 className='mt-12 font-semibold'
                 bg='blue.500'
                 icon={<LightningBoltIcon className='w-4' />}
+                isLoading={isLoading}
                 onClick={async () => {
+                    generate()
                     //
                 }}
             >
@@ -148,10 +200,37 @@ function LeftPaneTop() {
     )
 }
 
+// aspect ratio is width / height
+function stageToDataURL(_stage: Konva.Stage, aspectRatio = 1) {
+    let width = 512
+    let height = 512 * aspectRatio
+    let clone: Konva.Stage = _stage.clone()
+    let adjust = width / clone.width()
+
+    clone.size({ height, width })
+
+    clone.draw()
+    clone.scale({ x: adjust, y: adjust })
+
+    // needed to apply filters
+    clone.find('Image').forEach((image) => {
+        image.cache()
+    })
+    let url = clone.toDataURL({
+        pixelRatio: 1,
+        // quality: 100,
+        width,
+        height,
+        mimeType: 'image/png',
+    })
+    clone.destroy()
+    return url
+}
+
 const templateImages = [
     {
         url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/ae81fc3e-7363-4357-4e5a-34e8ef6fab00/public',
-        prompt: 'Can on top of a rock in a forest',
+        prompt: 'product photography, cocacola can on top of a rock platform, surrounded by the canyon rocks, 4k',
     },
     {
         url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/bde9a717-e664-4d4a-df9c-cdf587f86500/public',
@@ -183,22 +262,92 @@ const templateImages = [
     },
 ]
 
-function getMaskFromCanvas() {
-    let cloned: Konva.Stage = stage.clone()
+function getMaskFromCanvas(_stage: Konva.Stage) {
+    // stage = useStore.getState().stage
+    let cloned: Konva.Stage = _stage.clone()
     // cloned.cache()
     let image = cloned.findOne((node: Konva.Image) => {
         return node.id() === 'init'
     })
-    console.log(image.id())
+
+    if (!image) {
+        alert('no image')
+        return
+    }
+    var layer: Konva.Layer = cloned.findOne('Layer')
+
+    // another solution is to use rectangle shape
+    var background = new Konva.Rect({
+        x: 0,
+        y: 0,
+        width: cloned.width(),
+        height: cloned.height(),
+        fill: '#000',
+        listening: false,
+    })
+    layer.add(background)
+    background.moveToBottom()
+    // console.log(image.id())
     image = image.cache()
-    image.filters([Konva.Filters.Grayscale, Konva.Filters.Brighten])
-    image.brightness(100)
+
+    // image.scale({ x: 0.99, y: 0.99,  })
+    image.filters([
+        Konva.Filters.Grayscale,
+        Konva.Filters.Brighten,
+        Konva.Filters.Contrast,
+        Konva.Filters.Blur,
+    ])
+    image.brightness(5)
     image.contrast(0.1)
-    let url = cloned.toDataURL({ quality: 1, pixelRatio: 1 })
+    image.blurRadius(1)
+    let url = stageToDataURL(cloned)
+    cloned.destroy()
+
     return url
 }
 
-function setInitImage(publicUrl) {
+function getInitFromCanvas(_stage: Konva.Stage) {
+    // stage = useStore.getState().stage
+    let cloned: Konva.Stage = _stage.clone()
+    // cloned.cache()
+    let image = cloned.findOne((node: Konva.Image) => {
+        return node.id() === 'init'
+    })
+
+    if (!image) {
+        alert('no image')
+        return
+    }
+    var layer: Konva.Layer = cloned.findOne('Layer')
+
+    // another solution is to use rectangle shape
+    var background = new Konva.Rect({
+        x: 0,
+        y: 0,
+        width: cloned.width(),
+        height: cloned.height(),
+        fill: '#fff',
+        listening: false,
+    })
+    layer.add(background)
+    background.moveToBottom()
+    // console.log(image.id())
+    image = image.cache()
+
+    let url = stageToDataURL(cloned)
+    cloned.destroy()
+
+    return url
+}
+
+function setInitImage({
+    publicUrl,
+    layer,
+}: {
+    publicUrl: string
+    layer: Konva.Layer
+}) {
+    layer = useStore.getState().layer
     return new Promise<Konva.Image>((resolve) => {
         var imageObj = new Image()
         imageObj.onload = function (img) {
@@ -233,53 +382,71 @@ function setInitImage(publicUrl) {
     })
 }
 
+function Images({}) {
+    const images = useStore((store) => store.resultImages)
+    const loadingImages = useStore((store) => store.loadingImages)
+    return (
+        <div className='px-[40px] pt-[30px] w-full h-full overflow-y-auto '>
+            <style jsx global>{``}</style>
+            <Masonry
+                breakpointCols={{
+                    default: 3,
+                    1000: 2,
+                    500: 1,
+                }}
+                className='flex w-full -ml-[30px] '
+                columnClassName='space-y-8 pl-[30px]'
+            >
+                {Array.from({ length: loadingImages })?.map((image, i) => {
+                    return <GenImage isLoading key={'loading' + i} src={''} />
+                })}
+                {images?.map((image, i) => {
+                    return (
+                        <GenImage key={image.publicUrl} src={image.publicUrl} />
+                    )
+                })}
+                {Array.from({ length: 6 }).map((_, i) => (
+                    <GenImage key={'placeholder' + i} />
+                ))}
+            </Masonry>
+        </div>
+    )
+}
+
+function GenImage({ isLoading = false, src = '' }) {
+    const aspectRatio = '1/1'
+    return (
+        <div
+            style={{
+                aspectRatio,
+            }}
+            className={classNames(
+                'flex text-2xl shadow-xl text-white flex-col items-center justify-center rounded-md bg-gray-700 ',
+                isLoading ? 'animate-pulse' : '',
+            )}
+        >
+            {src && (
+                <Zoom>
+                    <img
+                        src={src}
+                        alt=''
+                        style={{
+                            aspectRatio,
+                        }}
+                        className='w-full rounded'
+                    />
+                </Zoom>
+            )}
+        </div>
+    )
+}
+
 export function App({}) {
-    let generations = []
     return (
         <div className='w-screen h-screen flex flex-col dark'>
             <div className='relative bg-gray-600 h-full flex'>
-                <LeftPane />
-                <style jsx global>{`
-                    .my-masonry-grid {
-                        display: flex;
-                        margin-left: -30px; /* gutter size offset */
-                        width: 100%;
-                    }
-                    .my-masonry-grid_column {
-                        padding-left: 30px; /* gutter size */
-                        background-clip: padding-box;
-                    }
-
-                    /* Style your items */
-                    .my-masonry-grid_column > div {
-                        /* change div to reference your elements you put in <Masonry> */
-                        background: grey;
-                        margin-bottom: 30px;
-                    }
-                `}</style>
-                <Masonry
-                    breakpointCols={3}
-                    className='my-masonry-grid overflow-y-auto p-[40px]'
-                    columnClassName='my-masonry-grid_column'
-                >
-                    {!generations?.length &&
-                        Array.from({ length: 12 }).map((_, i) => (
-                            <div
-                                style={{
-                                    aspectRatio: i >= 4 ? '1/1' : '16/9',
-                                    // if aspect ratio is 1/2 then it takes 2 rows
-                                    // if aspect ratio is 1/1 then it takes 1 row
-                                    // gridRow: i == 2 ? 'span 2' : 'span 1',
-                                    // gridTemplateRows:
-                                    //     i == 2 ? '1fr 1fr' : '1fr',
-                                }}
-                                key={i}
-                                className='flex text-2xl text-white flex-col items-center justify-center rounded-md bg-gray-700 '
-                            >
-                                {i}
-                            </div>
-                        ))}
-                </Masonry>
+                <LeftPaneTop />
+                <Images />
                 {/* 
                 <div
                     className={classNames(
@@ -316,9 +483,6 @@ function aspectRatioToStyle(aspectRatio: number) {
     }
     let above = aspectRatio * 100
     let below = 100
-    let gcd = getGCD(above, below)
-    above /= gcd
-    below /= gcd
 }
 
 // function from https://stackoverflow.com/a/15832662/512042

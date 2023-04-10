@@ -43,8 +43,8 @@ export type EngineId =
     | 'esrgan-v1-x2plus'
 
 // Authenticate using your API key, don't commit your key to a public repository!
-const myMetadata = new GRPCWeb.Metadata()
-myMetadata.set('Authorization', 'Bearer ' + env.STABILITY_KEY)
+export const myStabilityMetadata = new GRPCWeb.Metadata()
+myStabilityMetadata.set('Authorization', 'Bearer ' + env.STABILITY_KEY)
 
 // Create a generation client to use with all future requests
 export const stabilityClient = new GenerationServiceClient(
@@ -313,7 +313,7 @@ function createMaskImagePrompt(imageBinary: Buffer): Generation.Prompt {
 /** Executes a GenerationRequest, abstracting the gRPC streaming result behind a Promise */
 export async function executeGenerationRequest(
     request: GenerationRequest,
-    metadata: GRPCWeb.Metadata = myMetadata,
+    metadata: GRPCWeb.Metadata = myStabilityMetadata,
     generationClient: GenerationServiceClient = stabilityClient,
 ): Promise<GenerationArtifacts> {
     try {

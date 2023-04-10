@@ -1,4 +1,6 @@
 import '@app/styles/index.css'
+import 'react-medium-image-zoom/dist/styles.css'
+
 import 'baby-i-am-faded/styles.css'
 import { SessionProvider, signIn, useSession } from 'next-auth/react'
 import { ThemeProvider } from 'next-themes'
