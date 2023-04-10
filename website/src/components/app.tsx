@@ -12,6 +12,7 @@ import { objFromArr } from '@app/utils/utils'
 import { UploadButton } from './upload'
 import { atom, useAtom } from 'jotai'
 import { Button } from 'beskar/landing'
+import { env } from '@app/env'
 
 export function LeftPane() {
     const className =
@@ -27,7 +28,7 @@ export function LeftPane() {
 }
 
 const imageUrlAtom = atom<string>('')
-
+let debugMask = env.NEXT_PUBLIC_ENV !== 'production' && false
 let layer: Konva.Layer
 let stage: Konva.Stage
 function LeftPaneTop() {
@@ -48,11 +49,11 @@ function LeftPaneTop() {
                 height: height,
             })
 
-            layer = new Konva.Layer({})
+            layer = new Konva.Layer({ height, width })
 
             stage.add(layer)
 
-            addImage(
+            let image = await addImage(
                 'https://storage.googleapis.com/generated-ai-uploads/2fa9e1d5-ca86-4e74-8688-cfb1b27106a54419983029_bd466f7019_b%2520Background%2520Removed.png',
             )
         })
@@ -71,50 +72,69 @@ function LeftPaneTop() {
                 ref={container}
                 className='w-full aspect-square border rounded-md overflow-hidden'
             ></div>
-            <Button
-                onClick={() => {
-                    stage && setMaskImageUrl(getMaskFromCanvas(stage))
-                }}
-            >
-                Generate debug mask image
-            </Button>
-            <img src={maskImageUrl} alt='' className='w-full aspect-square' />
+            {debugMask && (
+                <>
+                    <Button
+                        onClick={() => {
+                            setMaskImageUrl(getMaskFromCanvas())
+                        }}
+                    >
+                        Generate debug mask image
+                    </Button>
+                    <img
+                        src={maskImageUrl}
+                        alt=''
+                        className='border w-full aspect-square'
+                    />
+                </>
+            )}
         </div>
     )
 }
 
-function getMaskFromCanvas(stage: Konva.Stage) {
+function getMaskFromCanvas() {
     let cloned: Konva.Stage = stage.clone()
-    cloned.cache()
-    cloned.filters([Konva.Filters.Grayscale])
-    let url = stage.toDataURL()
+    // cloned.cache()
+    let image = cloned.findOne((node: Konva.Image) => {
+        return node.id() === 'init'
+    })
+    console.log(image.id())
+    image = image.cache()
+    image.filters([Konva.Filters.Grayscale, Konva.Filters.Brighten])
+    image.brightness(100)
+    image.contrast(0.1)
+    let url = cloned.toDataURL({ quality: 1, pixelRatio: 1 })
     return url
 }
 
 function addImage(publicUrl) {
-    var imageObj = new Image()
-    imageObj.onload = function (img) {
-        let width = 200
-        let height = 137
-        var imgNode = new Konva.Image({
-            image: imageObj,
-            x: layer.width() / 2 - width / 2,
-            y: layer.height() / 2 - height / 2,
-            width,
-            height,
-            draggable: true,
-        })
+    return new Promise<Konva.Image>((resolve) => {
+        var imageObj = new Image()
+        imageObj.onload = function (img) {
+            let width = 200
+            let height = 137
+            var imgNode = new Konva.Image({
+                id: 'init',
+                image: imageObj,
+                x: layer.width() / 2 - width / 2,
+                y: layer.height() / 2 - height / 2,
+                width,
+                height,
+                draggable: true,
+            })
 
-        // darthNode.draggable(true)
-        layer.add(imgNode)
-        var tr1 = new Konva.Transformer({
-            nodes: [imgNode],
-            centeredScaling: true,
-        })
-        layer.add(tr1)
-    }
-    imageObj.crossOrigin = 'Anonymous'
-    imageObj.src = publicUrl
+            // darthNode.draggable(true)
+            layer.add(imgNode)
+            var tr1 = new Konva.Transformer({
+                nodes: [imgNode],
+                centeredScaling: true,
+            })
+            layer.add(tr1)
+            resolve(imgNode)
+        }
+        imageObj.crossOrigin = 'Anonymous'
+        imageObj.src = publicUrl
+    })
 }
 
 export function App({}) {
