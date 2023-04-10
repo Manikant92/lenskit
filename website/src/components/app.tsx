@@ -11,8 +11,9 @@ import { Pane } from 'tweakpane'
 import { objFromArr } from '@app/utils/utils'
 import { UploadButton } from './upload'
 import { atom, useAtom } from 'jotai'
-import { Button } from 'beskar/landing'
+import { Button, Input } from 'beskar/landing'
 import { env } from '@app/env'
+import { LightningBoltIcon } from '@heroicons/react/solid'
 
 export function LeftPane() {
     const className =
@@ -29,8 +30,10 @@ export function LeftPane() {
 
 const imageUrlAtom = atom<string>('')
 let debugMask = env.NEXT_PUBLIC_ENV !== 'production' && false
+
 let layer: Konva.Layer
 let stage: Konva.Stage
+
 function LeftPaneTop() {
     const [imageUrl, setImageUrl] = useAtom(imageUrlAtom)
     const container = useRef<HTMLDivElement>(null)
@@ -53,25 +56,33 @@ function LeftPaneTop() {
 
             stage.add(layer)
 
-            let image = await addImage(
-                'https://storage.googleapis.com/generated-ai-uploads/2fa9e1d5-ca86-4e74-8688-cfb1b27106a54419983029_bd466f7019_b%2520Background%2520Removed.png',
-            )
+            // let image = await addImage(
+            //     'https://storage.googleapis.com/generated-ai-uploads/2fa9e1d5-ca86-4e74-8688-cfb1b27106a54419983029_bd466f7019_b%2520Background%2520Removed.png',
+            // )
         })
     }, [])
 
     const [maskImageUrl, setMaskImageUrl] = useState('')
+    const [selectedTemplateIndex, setSelectedTemplate] = useState(0)
     return (
-        <div className='dark:bg-gray-900 p-4 flex-shrink-0 flex flex-col gap-2 w-full'>
-            <UploadButton
-                className='text-sm w-full'
-                onUpload={({ publicUrl }) => {
-                    setImageUrl(publicUrl)
-                }}
-            />
-            <div
-                ref={container}
-                className='w-full aspect-square border rounded-md overflow-hidden'
-            ></div>
+        <div className='dark:bg-gray-900 p-6 flex-shrink-0 flex flex-col gap-2 w-full'>
+            <div className='flex flex-row gap-2'>
+                <div
+                    ref={container}
+                    className='w-full aspect-square border rounded-md overflow-hidden'
+                ></div>
+                <div className='space-y-2 text-sm p-2 px-4'>
+                    <UploadButton
+                        className='text-sm w-full'
+                        onUpload={({ publicUrl }) => {
+                            setImageUrl(publicUrl)
+                            setInitImage(publicUrl)
+                        }}
+                    />
+                    <div className=''>Object type</div>
+                    <Input placeholder='bottle' />
+                </div>
+            </div>
             {debugMask && (
                 <>
                     <Button
@@ -88,9 +99,89 @@ function LeftPaneTop() {
                     />
                 </>
             )}
+            <div className=''>
+                <div className=''>Templates</div>
+                <div className=' grid place-content-start grid-cols-3 overflow-y-auto gap-4 max-h-[300px] p-2 -mx-2'>
+                    {templateImages.map((img, i) => {
+                        return (
+                            <button
+                                className={classNames(
+                                    'appereance-none bg-white rounded active:opacity-40 transition-transform',
+                                    selectedTemplateIndex === i &&
+                                        'ring-4 ring-blue-500',
+                                )}
+                                key={img.url + i}
+                                onClick={() => {
+                                    setSelectedTemplate(i)
+                                }}
+                            >
+                                <img
+                                    src={img.url}
+                                    alt='template'
+                                    className='w-full aspect-square rounded'
+                                />
+                            </button>
+                        )
+                    })}
+                </div>
+            </div>
+            <div className='space-y-2'>
+                <div className=''>Prompt</div>
+                <Input
+                    value={templateImages[selectedTemplateIndex]?.prompt || ''}
+                    placeholder='Can on top of a rock in a forest'
+                    className='text-sm'
+                />
+            </div>
+
+            <Button
+                className='mt-12 font-semibold'
+                bg='blue.500'
+                icon={<LightningBoltIcon className='w-4' />}
+                onClick={async () => {
+                    //
+                }}
+            >
+                Generate
+            </Button>
         </div>
     )
 }
+
+const templateImages = [
+    {
+        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/ae81fc3e-7363-4357-4e5a-34e8ef6fab00/public',
+        prompt: 'Can on top of a rock in a forest',
+    },
+    {
+        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/bde9a717-e664-4d4a-df9c-cdf587f86500/public',
+        prompt: 'Can on top of a rock in a forest',
+    },
+    {
+        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/ae81fc3e-7363-4357-4e5a-34e8ef6fab00/public',
+        prompt: 'Can on top of a rock in a forest',
+    },
+    {
+        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/bde9a717-e664-4d4a-df9c-cdf587f86500/public',
+        prompt: 'Can on top of a rock in a forest',
+    },
+    {
+        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/ae81fc3e-7363-4357-4e5a-34e8ef6fab00/public',
+        prompt: 'Can on top of a rock in a forest',
+    },
+    {
+        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/bde9a717-e664-4d4a-df9c-cdf587f86500/public',
+        prompt: 'Can on top of a rock in a forest',
+    },
+    {
+        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/ae81fc3e-7363-4357-4e5a-34e8ef6fab00/public',
+        prompt: 'Can on top of a rock in a forest',
+    },
+    {
+        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/bde9a717-e664-4d4a-df9c-cdf587f86500/public',
+        prompt: 'Can on top of a rock in a forest',
+    },
+]
 
 function getMaskFromCanvas() {
     let cloned: Konva.Stage = stage.clone()
@@ -107,12 +198,16 @@ function getMaskFromCanvas() {
     return url
 }
 
-function addImage(publicUrl) {
+function setInitImage(publicUrl) {
     return new Promise<Konva.Image>((resolve) => {
         var imageObj = new Image()
         imageObj.onload = function (img) {
-            let width = 200
-            let height = 137
+            let adjust = imageObj.width / layer.width() / 0.5
+            // ratio should turn image heigt to half of canvas height
+            // console.log(adjust)
+            let width = imageObj.width / adjust
+            // adapt sizes to be half of canvas
+            let height = imageObj.height / adjust
             var imgNode = new Konva.Image({
                 id: 'init',
                 image: imageObj,
@@ -122,13 +217,14 @@ function addImage(publicUrl) {
                 height,
                 draggable: true,
             })
-
+            layer.removeChildren()
             // darthNode.draggable(true)
             layer.add(imgNode)
             var tr1 = new Konva.Transformer({
                 nodes: [imgNode],
                 centeredScaling: true,
             })
+
             layer.add(tr1)
             resolve(imgNode)
         }

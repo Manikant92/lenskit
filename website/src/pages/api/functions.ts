@@ -135,7 +135,7 @@ export async function uploadFile({ filename }) {
     })
 
     const bucket = storage.bucket('generated-ai-uploads')
-    const fullName = uuid.v4() + filename
+    const fullName = encodeURIComponent(uuid.v4() + '-' + filename)
     const file = bucket.file(fullName)
 
     const [response] = await file.generateSignedPostPolicyV4({
@@ -145,8 +145,22 @@ export async function uploadFile({ filename }) {
         ],
         fields: { 'x-goog-meta-test': 'data' },
     })
+    // https://kevinsimper.medium.com/google-cloud-storage-cors-not-working-after-enabling-14693412e404
+
+    let publicUrl = new URL(
+        // gcp uses %2520 instead of %20, why? boh
+        encodeURIComponent(file.name),
+        `https://${bucket.name}.storage.googleapis.com/`,
+    ).toString()
+    console.log('publicUrl', publicUrl, '\n', file.publicUrl())
     return {
         ...response,
-        publicUrl: file.publicUrl(),
+
+        publicUrl,
     }
 }
+
+// https://generated-ai-uploads.storage.googleapis.com/9303ecda-205a-42cf-9845-c53d9d19c444CocaLatt%20Background%20Removed.png
+// https://generated-ai-uploads.storage.googleapis.com/9303ecda-205a-42cf-9845-c53d9d19c444CocaLatt%2520Background%2520Removed.png
+// https://storage.googleapis.com/generated-ai-uploads/9303ecda-205a-42cf-9845-c53d9d19c444CocaLatt%2520Background%2520Removed.png
+// https://generated-ai-uploads.storage.googleapis.com/9303ecda-205a-42cf-9845-c53d9d19c444CocaLatt%2520Background%2520Removed.png

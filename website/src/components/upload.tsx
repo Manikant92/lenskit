@@ -37,6 +37,7 @@ export function UploadButton({
 
                 body: formData,
             })
+            console.log(upload)
 
             if (upload.ok) {
                 console.log('Uploaded successfully!')
