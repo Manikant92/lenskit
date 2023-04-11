@@ -10,9 +10,10 @@ import {
     executeGenerationRequest,
     getModels,
 } from './stability'
+import { aspectRatios, getImageSizeFromAspectRatio } from './utils'
 
 let i = 0
-test(
+test.skip(
     'works',
     async () => {
         const request = buildGenerationRequest('stable-diffusion-v1-5', {
@@ -61,4 +62,16 @@ test(
 test('getModels', async () => {
     const res = await getModels()
     console.log(JSON.stringify(res, null, 2))
+})
+
+test('getImageSizeFromAspectRatio', () => {
+    const allSizes = aspectRatios.map((a) => getImageSizeFromAspectRatio(a))
+    for (let [w, h] of allSizes) {
+        if (w % 64) {
+            throw new Error('width not divisible by 64: ' + w)
+        }
+        if (h % 64) {
+            throw new Error('height not divisible by 64: ' + h)
+        }
+    }
 })

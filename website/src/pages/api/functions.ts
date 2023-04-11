@@ -255,6 +255,7 @@ export async function generateImages({
                             let buffer = Buffer.from(
                                 await artifact.getBinary_asU8(),
                             )
+                            
                             let contentType = await artifact.getMime()
                             let filename = String(artifact.getSeed())
                             // let prompt = String(artifact.getPrompt())

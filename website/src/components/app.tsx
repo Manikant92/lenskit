@@ -14,7 +14,7 @@ import { useRef, useEffect, useState, Fragment } from 'react'
 // import "fabric-history"
 import { Pane } from 'tweakpane'
 
-import { objFromArr } from '@app/utils/utils'
+import { aspectRatios, getImageSizeFromAspectRatio, objFromArr } from '@app/utils/utils'
 import { UploadButton } from './upload'
 import { atom, useAtom } from 'jotai'
 import { Button, Input, useThrowingFn } from 'beskar/landing'
@@ -120,13 +120,7 @@ function LeftPane() {
         // },
         aspectRatio: {
             value: '1/1',
-            options: {
-                '1/1': '1/1',
-                '4/3': '4/3',
-                '16/9': '16/9',
-                // vertical video
-                '9/16': '9/16',
-            },
+            options: aspectRatios,
         },
     }))
     useEffect(() => {
@@ -166,20 +160,7 @@ function LeftPane() {
         }
     }, [aspectRatio])
 
-    const [w, h] = (() => {
-        if (aspectRatio === '1/1') {
-            return [768, 768]
-        }
-        if (aspectRatio === '4/3') {
-            return [768, 576]
-        }
-        if (aspectRatio === '16/9') {
-            return [768, 432]
-        }
-        if (aspectRatio === '9/16') {
-            return [432, 768]
-        }
-    })()
+    const [w, h] = getImageSizeFromAspectRatio(aspectRatio)
     return (
         <div className='h-full w-[300px] lg:w-[500px] overflow-y-scroll max-h-full dark:bg-gray-900 p-6 pt-[30px] flex-shrink-0 flex flex-col gap-3 '>
             <div
@@ -531,7 +512,7 @@ function Images({}) {
     )
 }
 
-function GenImage({ aspectRatio='1/1', isLoading = false, src = '' }) {
+function GenImage({ aspectRatio = '1/1', isLoading = false, src = '' }) {
     //  aspectRatio = '1/1'
     return (
         <div
