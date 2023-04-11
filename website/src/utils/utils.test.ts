@@ -12,51 +12,107 @@ import {
 } from './stability'
 import { aspectRatios, getImageSizeFromAspectRatio } from './utils'
 
-let i = 0
-test.skip(
-    'works',
+test(
+    'make template images',
     async () => {
-        const request = buildGenerationRequest('stable-diffusion-v1-5', {
-            // type: 'text-to-image',
-            type: 'image-to-image-masking',
-            initImage: fs.readFileSync('./test-images/init_image_with_bg.png'),
-            maskImage: fs.readFileSync('./test-images/mask_image.png'),
-            prompts: [
-                {
-                    text: 'product photography of a lipstick on a rock, surrounded by trees, 4k',
-                    weight: 1,
-                },
-                {
-                    text: 'texts, labels, tiny grid, small dots, graphic design, painting, worst, bad, ugly, person, guy',
-                    weight: -1,
-                },
-            ],
-            // width: 512,
-            // height: 512,
-            samples: 2,
-            cfgScale: 8,
+        let samples = 6
+        let prodName = 'lipstick'
+        const templatePrompts = [
+            //
+            {
+                name: 'canyon',
+                // path: '',
+                prompt: `product photography of a [product] on a rock platform surrounded by the gran canyon`,
+            },
+            {
+                name: 'tundra',
+                // path: '',
+                prompt: `product photography of a [product] on a circular platform in front of a glacial tundra background full of snow and ice`,
+            },
 
-            steps: 30,
-            sampler: Generation.DiffusionSampler.SAMPLER_K_DPMPP_2M,
-        })
-        console.time('executeGenerationRequest')
-        const res = await executeGenerationRequest(request)
-        console.timeEnd('executeGenerationRequest')
+            {
+                name: 'water',
+                // path: '',
+                prompt: 'product photography of a [product] emerging from rippling water, with the sea in the background',
+            },
+            {
+                name: 'yellow-flowers',
+                // path: '',
+                prompt: 'product photography of a "[product] on a translucent yellow platform surrounded by yellow flowers, with sunlight streaming down"',
+            },
+            {
+                name: 'flowers',
+                // path: '',
+                prompt: 'product photography of a [product] on top of a natural hill and rocks surrounded by flowers',
+            },
+            {
+                name: 'bark',
+                // path: '',
+                prompt: 'product photography of a "[product] balancing on piece of bark surrounded by flowers"',
+            },
+        ]
+        const alreadyCreated = fs
+            .readdirSync(path.resolve('public/templates'))
+            .map((f) => f.replace('.png', ''))
 
-        // console.log(res)
+        for (let [index, { prompt, name }] of templatePrompts.entries()) {
+            if (alreadyCreated.includes(name)) {
+                console.log('skipping', name)
+                continue
+            }
+            console.log('generating templates for ', prompt)
+            let i = 0
+            const request = buildGenerationRequest('stable-diffusion-v1-5', {
+                // type: 'text-to-image',
+                type: 'image-to-image-masking',
+                initImage: fs.readFileSync('./test-images/init_image.png'),
+                maskImage: fs.readFileSync('./test-images/mask_image.png'),
+                prompts: [
+                    {
+                        text: prompt.replace('[product]', prodName),
+                        weight: 1,
+                    },
+                    {
+                        text: 'texts, labels, tiny grid, small dots, graphic design, painting, worst, bad, ugly, person, guy',
+                        weight: -1,
+                    },
+                ],
+                // width: 512,
+                // height: 512,
+                samples,
+                cfgScale: 8,
 
-        for (let art of res.imageArtifacts) {
-            i += 1
-            console.log(art.getMime())
+                steps: 30,
+                sampler: Generation.DiffusionSampler.SAMPLER_K_DPMPP_2M,
+            })
+            console.time('executeGenerationRequest')
+            const res = await executeGenerationRequest(request)
+            console.timeEnd('executeGenerationRequest')
 
-            let buff = Buffer.from(await art.getBinary_asU8())
-            let seed = art.getSeed()
-            let p = path.resolve(__dirname, 'test-out', i + '-' + seed + '.png')
-            fs.mkdirSync(path.dirname(p), { recursive: true })
-            fs.writeFileSync(p, buff)
+            // console.log(res)
+
+            for (let art of res.imageArtifacts) {
+                i += 1
+                console.log(art.getMime())
+
+                let buff = Buffer.from(await art.getBinary_asU8())
+                let seed = art.getSeed()
+                let p = path.resolve(
+                    'public/templates',
+                    '0-' + name + '-' + i + '-' + seed + '.png',
+                )
+                fs.mkdirSync(path.dirname(p), { recursive: true })
+                fs.writeFileSync(p, buff)
+                // templatePrompts[index].path =
+                //     '/' + path.relative(path.resolve('public/'), p)
+            }
         }
+        fs.writeFileSync(
+            path.resolve('public/templates.json'),
+            JSON.stringify(templatePrompts, null, 2),
+        )
     },
-    1000 * 100,
+    1000 * 1000,
 )
 
 test('getModels', async () => {

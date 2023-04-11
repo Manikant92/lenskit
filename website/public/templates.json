@@ -1,0 +1,26 @@
+[
+  {
+    "name": "canyon",
+    "prompt": "product photography of a [product] on a rock platform surrounded by the gran canyon"
+  },
+  {
+    "name": "tundra",
+    "prompt": "product photography of a [product] on a circular platform in front of a glacial tundra background full of snow and ice"
+  },
+  {
+    "name": "water",
+    "prompt": "product photography of a [product] emerging from rippling water, with the sea in the background"
+  },
+  {
+    "name": "yellow-flowers",
+    "prompt": "product photography of a \"[product] on a translucent yellow platform surrounded by yellow flowers, with sunlight streaming down\""
+  },
+  {
+    "name": "flowers",
+    "prompt": "product photography of a [product] on top of a natural hill and rocks surrounded by flowers"
+  },
+  {
+    "name": "bark",
+    "prompt": "product photography of a \"[product] balancing on piece of bark surrounded by flowers\""
+  }
+]

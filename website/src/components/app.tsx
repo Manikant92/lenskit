@@ -5,6 +5,8 @@ import { LevaCustomTheme } from 'leva/src/styles'
 import { levaStore } from 'leva'
 import Zoom from 'react-medium-image-zoom'
 
+import templateImages from '@app/../public/templates.json'
+
 import Konva from 'konva'
 
 import Masonry from 'react-masonry-css'
@@ -102,6 +104,8 @@ function LeftPane() {
                 publicUrl:
                     'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/bde9a717-e664-4d4a-df9c-cdf587f86500/public',
                 aspectRatio: '1/1',
+                prompt: '',
+                seed: '',
             },
         ])
     }, [])
@@ -228,14 +232,17 @@ function LeftPane() {
                                     selectedTemplateIndex === i &&
                                         'ring-4 ring-blue-500',
                                 )}
-                                key={img.url + i}
+                                key={img.name + i}
                                 onClick={() => {
                                     setSelectedTemplate(i)
                                     set({ prompt: img.prompt })
                                 }}
                             >
                                 <img
-                                    src={img.url}
+                                    src={'/templates/' + img.name + '.png'}
+                                    style={{
+                                        aspectRatio: '1/1',
+                                    }}
                                     alt='template'
                                     className='w-full aspect-square rounded'
                                 />
@@ -300,41 +307,6 @@ function stageToDataURL(_stage: Konva.Stage) {
     clone.destroy()
     return url
 }
-
-const templateImages = [
-    {
-        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/ae81fc3e-7363-4357-4e5a-34e8ef6fab00/public',
-        prompt: 'product photography, cocacola can on top of a rock platform, surrounded by the canyon rocks, 4k',
-    },
-    {
-        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/bde9a717-e664-4d4a-df9c-cdf587f86500/public',
-        prompt: 'Can on top of a rock in a forest',
-    },
-    {
-        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/ae81fc3e-7363-4357-4e5a-34e8ef6fab00/public',
-        prompt: 'Can on top of a rock in a forest',
-    },
-    {
-        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/bde9a717-e664-4d4a-df9c-cdf587f86500/public',
-        prompt: 'Can on top of a rock in a forest',
-    },
-    {
-        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/ae81fc3e-7363-4357-4e5a-34e8ef6fab00/public',
-        prompt: 'Can on top of a rock in a forest',
-    },
-    {
-        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/bde9a717-e664-4d4a-df9c-cdf587f86500/public',
-        prompt: 'Can on top of a rock in a forest',
-    },
-    {
-        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/ae81fc3e-7363-4357-4e5a-34e8ef6fab00/public',
-        prompt: 'Can on top of a rock in a forest',
-    },
-    {
-        url: 'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/bde9a717-e664-4d4a-df9c-cdf587f86500/public',
-        prompt: 'Can on top of a rock in a forest',
-    },
-]
 
 function getMaskFromCanvas(_stage: Konva.Stage) {
     // stage = useStore.getState().stage
@@ -500,7 +472,10 @@ function Images({}) {
                         <GenImage
                             aspectRatio={image.aspectRatio}
                             key={image.publicUrl}
-                            filename={`${image.prompt} ${image.seed}.png`}
+                            filename={`${image.prompt
+                                ?.replace(/ /g, '-')
+                                .replace(/,/g, '')
+                                .replace(/./g, '')}-${image.seed}.png`}
                             src={image.publicUrl}
                         />
                     )
@@ -571,7 +546,7 @@ function GenImage({
                             })
                     }}
                     bg='gray.800'
-                    className='shadow-xl gap-2 items-center text-sm hover:scale-105 block !absolute right-3 bottom-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100'
+                    className='shadow-xl gap-2 items-center text-sm hover:scale-105 block !absolute right-3 bottom-3 opacity-0 transition-all duration-200 group-hover:opacity-100'
                 >
                     <DownloadIcon className=' text-white w-5 ' />
                     {/* <span className=''>download</span> */}
