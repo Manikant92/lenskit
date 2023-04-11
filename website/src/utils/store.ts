@@ -9,21 +9,33 @@ interface Store {
     // width?: number
     // height?: number
     // setSizes(width: number, height: number): void
-    loadingImages: number
+    loadingImages: Partial<GeneratedImage>[]
     resultImages: GeneratedImage[]
     addNewImages(images: GeneratedImage[]): void
     init({ stage, layer }): void
-    setLoadingImages(loadingImages: number): void
+    addLoadingImages({ loadingImages, aspectRatio }): void
+    removeLoadingImages(n: number): void
 }
 
 export const useStore = create<Store>()((set) => ({
-    resultImages: [] as GeneratedImage[],
-    loadingImages: 0,
-    width: 768,
-    height: 768,
-    setLoadingImages(loadingImages: number) {
+    resultImages: [],
+    loadingImages: [],
+
+    addLoadingImages({ loadingImages, aspectRatio }) {
         set((state) => ({
-            loadingImages: Math.max(0, state.loadingImages + loadingImages),
+            loadingImages: [
+                ...state.loadingImages,
+                ...Array.from({
+                    length: loadingImages,
+                })?.map((image, i) => {
+                    return { aspectRatio }
+                }),
+            ],
+        }))
+    },
+    removeLoadingImages(n) {
+        set((state) => ({
+            loadingImages: state.loadingImages.slice(n),
         }))
     },
     // setSizes(width: number, height: number) {

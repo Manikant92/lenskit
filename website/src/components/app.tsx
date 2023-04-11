@@ -63,6 +63,11 @@ const levaTheme: LevaCustomTheme = {
     },
 }
 
+const defaultInitImage =
+    'https://generated-ai-uploads.storage.googleapis.com/6214c553-a7ce-4a9d-8179-e34edbf91d12-CocaLatt%252520Background%252520Removed.png'
+
+const defaultProduct = 'can'
+
 function LeftPane() {
     const [addNewImages, init, stage, layer] = useStore((state) => [
         state.addNewImages,
@@ -80,40 +85,32 @@ function LeftPane() {
     // const [prompt, setPrompt] = useState(
     //     templateImages[selectedTemplateIndex]?.prompt || '',
     // )
-    const setLoadingImages = useStore((state) => state.setLoadingImages)
+    const addLoadingImages = useStore((state) => state.addLoadingImages)
+    const removeLoadingImages = useStore((state) => state.removeLoadingImages)
     const { fn: generate, isLoading } = useThrowingFn({
         async fn() {
             try {
-                setLoadingImages(samples)
+                addLoadingImages({ loadingImages: samples, aspectRatio })
                 const results = await generateImages({
                     samples,
                     initImageUrl: getInitFromCanvas(stage),
                     maskImageUrl: getMaskFromCanvas(stage),
-                    prompt,
+                    prompt: prompt.replace('[product]', product),
                 })
                 addNewImages(results)
             } finally {
-                setLoadingImages(-samples)
+                removeLoadingImages(samples)
             }
         },
         errorMessage: 'Failed to generate image',
     })
-    useEffect(() => {
-        addNewImages([
-            {
-                publicUrl:
-                    'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/bde9a717-e664-4d4a-df9c-cdf587f86500/public',
-                aspectRatio: '1/1',
-                prompt: '',
-                seed: '',
-            },
-        ])
-    }, [])
 
-    const [{ prompt, samples, aspectRatio }, set] = useControls(() => ({
-        prompt: {
-            value: templateImages[selectedTemplateIndex]?.prompt || '',
-            // rows: true,
+    const [prompt, setPrompt] = useState(
+        templateImages[selectedTemplateIndex]?.prompt || '',
+    )
+    const [{ samples, product, aspectRatio }, set] = useControls(() => ({
+        product: {
+            value: defaultProduct,
         },
         samples: {
             value: 3,
@@ -152,8 +149,7 @@ function LeftPane() {
 
         stage.add(layer)
         setInitImage({
-            publicUrl:
-                'https://generated-ai-uploads.storage.googleapis.com/6214c553-a7ce-4a9d-8179-e34edbf91d12-CocaLatt%252520Background%252520Removed.png',
+            publicUrl: defaultInitImage,
             layer,
         })
         let wantedW = container.current.parentElement?.clientWidth || 0
@@ -235,7 +231,7 @@ function LeftPane() {
                                 key={img.name + i}
                                 onClick={() => {
                                     setSelectedTemplate(i)
-                                    set({ prompt: img.prompt })
+                                    setPrompt(img.prompt)
                                 }}
                             >
                                 <img
@@ -457,7 +453,7 @@ function Images({}) {
                 className='flex w-full -ml-[30px] '
                 columnClassName='space-y-8 pl-[30px]'
             >
-                {Array.from({ length: loadingImages })?.map((image, i) => {
+                {loadingImages?.map((image, i) => {
                     return (
                         <GenImage
                             aspectRatio={aspectRatio}
