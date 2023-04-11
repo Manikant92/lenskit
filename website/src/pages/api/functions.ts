@@ -192,6 +192,7 @@ function getPublicUrl(file: File) {
 }
 export type GeneratedImage = {
     publicUrl: string
+    aspectRatio: string
 }
 
 export async function generateImages({
@@ -212,7 +213,7 @@ export async function generateImages({
         type: 'image-to-image-masking',
         initImage,
         maskImage,
-        
+
         prompts: [
             {
                 text: prompt,
@@ -279,6 +280,9 @@ export async function generateImages({
                             let publicUrl = getPublicUrl(file)
                             results.push({
                                 publicUrl,
+                                aspectRatio: `${size.width / 64}:${
+                                    size.height / 64
+                                }`,
                                 // prompt,
                             })
                             // const file = bucket.file(fullName)

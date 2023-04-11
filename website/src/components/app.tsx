@@ -1,4 +1,7 @@
 import classNames from 'classnames'
+import { Leva, useControls } from 'leva'
+import { LevaCustomTheme } from 'leva/src/styles'
+import { levaStore } from 'leva'
 import Zoom from 'react-medium-image-zoom'
 
 import Konva from 'konva'
@@ -19,60 +22,57 @@ import { LightningBoltIcon } from '@heroicons/react/solid'
 import { GeneratedImage, generateImages } from '@app/pages/api/functions'
 import { useStore } from '@app/utils/store'
 import { ChakraProvider, Select } from '@chakra-ui/react'
+import colors from 'beskar/colors'
 
-let debugMask = env.NEXT_PUBLIC_ENV !== 'production' && true
+let debugMask = env.NEXT_PUBLIC_ENV !== 'production' && false
 
 const imageUrlAtom = atom<string>('')
 
-function LeftPaneTop() {
+// https://github.com/pmndrs/leva/blob/main/packages/leva/src/styles/stitches.config.ts#L3
+const levaTheme: LevaCustomTheme = {
+    colors: {
+        // elevation1: colors.gray[800], // bg color of the root panel (main title bar)
+        elevation2: colors.gray[900], // bg color of the rows (main panel color)
+        elevation3: '#373c4b', // bg color of the inputs
+        accent1: '#0066dc',
+        accent2: '#007bff',
+        accent3: '#3c93ff',
+        highlight1: '#535760',
+        highlight2: '#8c92a4',
+        highlight3: '#fefefe',
+        vivid1: '#ffcc00',
+        folderWidgetColor: '$highlight2',
+        folderTextColor: '$highlight3',
+        toolTipBackground: '$highlight3',
+        toolTipText: '$elevation2',
+    },
+    fontSizes: {
+        root: '14px',
+        toolTip: '$root',
+    },
+    sizes: {
+        // rootWidth: '280px',
+        controlWidth: '280px',
+    },
+}
+
+function LeftPane() {
     const [addNewImages, init, stage, layer] = useStore((state) => [
         state.addNewImages,
         state.init,
         state.stage,
         state.layer,
     ])
-    const [w, h] = useStore((state) => [state.width, state.height])
-    let aspectRatio = `${w}/${h}`
+    // const [w, h] = useStore((state) => [state.width, state.height])
+
     const [imageUrl, setImageUrl] = useAtom(imageUrlAtom)
     const container = useRef<HTMLDivElement>(null)
-    useEffect(() => {
-        if (layer) {
-            return
-        }
-        Promise.resolve().then(async () => {
-            console.log('konva')
-            let width = container.current?.clientWidth || w
-            let height = container.current?.clientHeight || h
-            width = w
-            height = h
-
-            let stage = new Konva.Stage({
-                container: container.current,
-                width: width,
-                height: height,
-            })
-
-            let layer = new Konva.Layer({ height, width })
-            layer.canvas.context.imageSmoothingEnabled = true
-            layer.canvas.context['imageSmoothingQuality'] = 'high'
-
-            init({ stage, layer })
-
-            stage.add(layer)
-
-            let image = await setInitImage({
-                publicUrl:
-                    'https://generated-ai-uploads.storage.googleapis.com/6214c553-a7ce-4a9d-8179-e34edbf91d12-CocaLatt%252520Background%252520Removed.png',
-                layer,
-            })
-        })
-    }, [])
 
     const [debugImageUrl, setDebugImageUrl] = useState('')
     const [selectedTemplateIndex, setSelectedTemplate] = useState(0)
-    const [prompt, setPrompt] = useState(
-        templateImages[selectedTemplateIndex]?.prompt || '',
-    )
+    // const [prompt, setPrompt] = useState(
+    //     templateImages[selectedTemplateIndex]?.prompt || '',
+    // )
     const setLoadingImages = useStore((state) => state.setLoadingImages)
     const { fn: generate, isLoading } = useThrowingFn({
         async fn() {
@@ -97,14 +97,83 @@ function LeftPaneTop() {
             {
                 publicUrl:
                     'https://imagedelivery.net/i1XPW6iC_chU01_6tBPo8Q/bde9a717-e664-4d4a-df9c-cdf587f86500/public',
+                aspectRatio: '1/1',
             },
         ])
     }, [])
+
+    const [{ prompt, samples, aspectRatio }, set] = useControls(() => ({
+        prompt: {
+            value: templateImages[selectedTemplateIndex]?.prompt || '',
+            // rows: true,
+        },
+        samples: {
+            value: 3,
+            min: 1,
+            max: 10,
+            step: 1,
+        },
+        aspectRatio: {
+            value: '1/1',
+            options: {
+                '1/1': '1/1',
+                '4/3': '4/3',
+                '16/9': '16/9',
+                // vertical video
+                '9/16': '9/16',
+            },
+        },
+    }))
     useEffect(() => {
+        console.log('konva')
+        let width = container.current?.clientWidth || w
+        let height = container.current?.clientHeight || h
+        width = w
+        height = h
+
+        let stage = new Konva.Stage({
+            container: container.current,
+            width: width,
+            height: height,
+        })
+
+        let layer = new Konva.Layer({ height, width })
+        layer.canvas.context.imageSmoothingEnabled = true
+        layer.canvas.context['imageSmoothingQuality'] = 'high'
+
+        init({ stage, layer })
+
+        stage.add(layer)
+        setInitImage({
+            publicUrl:
+                'https://generated-ai-uploads.storage.googleapis.com/6214c553-a7ce-4a9d-8179-e34edbf91d12-CocaLatt%252520Background%252520Removed.png',
+            layer,
+        })
         let wantedW = container.current.parentElement?.clientWidth || 0
         let scaleFactor = wantedW / w
         container.current.style.transform = `scale(${scaleFactor})`
-    }, [])
+
+        return () => {
+            layer.destroy()
+            stage.destroy()
+            container.current.innerHTML = ''
+        }
+    }, [aspectRatio])
+
+    const [w, h] = (() => {
+        if (aspectRatio === '1/1') {
+            return [768, 768]
+        }
+        if (aspectRatio === '4/3') {
+            return [768, 576]
+        }
+        if (aspectRatio === '16/9') {
+            return [768, 432]
+        }
+        if (aspectRatio === '9/16') {
+            return [432, 768]
+        }
+    })()
     return (
         <div className='h-full w-[300px] lg:w-[500px] overflow-y-scroll max-h-full dark:bg-gray-900 p-6 pt-[30px] flex-shrink-0 flex flex-col gap-3 '>
             <div
@@ -127,8 +196,6 @@ function LeftPaneTop() {
                         setInitImage({ publicUrl, layer })
                     }}
                 />
-                <div className=''>Object type</div>
-                <Input placeholder='bottle' />
             </div>
 
             {debugMask && (
@@ -160,7 +227,7 @@ function LeftPaneTop() {
                 </>
             )}
             <div className=''>
-                <div className=''>Templates</div>
+                <div className='font-mono text-sm'>Templates</div>
                 <div className=' grid place-content-start grid-cols-3 overflow-y-auto gap-4 max-h-[300px] p-2 -mx-2'>
                     {templateImages.map((img, i) => {
                         return (
@@ -173,7 +240,7 @@ function LeftPaneTop() {
                                 key={img.url + i}
                                 onClick={() => {
                                     setSelectedTemplate(i)
-                                    setPrompt(img.prompt)
+                                    set({ prompt: img.prompt })
                                 }}
                             >
                                 <img
@@ -186,18 +253,20 @@ function LeftPaneTop() {
                     })}
                 </div>
             </div>
-            <div className='space-y-2'>
-                <div className=''>Prompt</div>
-                <Input
-                    value={prompt}
-                    onChange={(e) => {
-                        setPrompt(e.target.value)
-                    }}
-                    placeholder='Can on top of a rock in a forest'
-                    className='text-sm'
+
+            <div className='-mx-3'>
+                <Leva
+                    collapsed={false}
+                    hideCopyButton
+                    flat
+                    neverHide
+                    titleBar={false}
+                    fill
+                    // isRoot
+
+                    theme={levaTheme}
                 />
             </div>
-
             <Button
                 className='mt-12 font-semibold'
                 bg='blue.500'
@@ -216,17 +285,15 @@ function LeftPaneTop() {
 
 // aspect ratio is width / height
 function stageToDataURL(_stage: Konva.Stage) {
-    const state = useStore.getState()
-    const { width, height } = state
+    // const { width, height } = state
     // let width = 512
     // let height = 512 * aspectRatio
     let clone: Konva.Stage = _stage.clone()
-    let adjust = width / clone.width()
+    // let adjust = width / clone.width()
 
-    clone.size({ height, width })
+    // clone.size({ height, width })
 
-    clone.draw()
-    clone.scale({ x: adjust, y: adjust })
+    // clone.scale({ x: adjust, y: adjust })
 
     // needed to apply filters
     clone.find('Image').forEach((image) => {
@@ -409,13 +476,18 @@ function setInitImage({
 function Images({}) {
     const images = useStore((store) => store.resultImages)
     const loadingImages = useStore((store) => store.loadingImages)
-    const aspectRatio = useStore((store) => `${store.width}/${store.height}`)
+    const aspectRatio = levaStore.useStore(
+        (store) => store.data['aspectRatio']?.['value'],
+    )
+
+    console.log('rendering images', aspectRatio)
     return (
         <div className='px-[40px] pt-[30px] w-full h-full overflow-y-auto '>
             <style jsx global>{``}</style>
             <Masonry
                 breakpointCols={{
-                    default: 3,
+                    default: 4,
+                    2000: 3,
                     1000: 2,
                     500: 1,
                 }}
@@ -435,7 +507,7 @@ function Images({}) {
                 {images?.map((image, i) => {
                     return (
                         <GenImage
-                            aspectRatio={aspectRatio}
+                            aspectRatio={image.aspectRatio}
                             key={image.publicUrl}
                             src={image.publicUrl}
                         />
@@ -484,7 +556,7 @@ export function App({}) {
     return (
         <div className='w-screen h-screen flex flex-col dark'>
             <div className='relative bg-gray-600 h-full flex'>
-                <LeftPaneTop />
+                <LeftPane />
                 <Images />
                 {/* 
                 <div

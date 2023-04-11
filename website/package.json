@@ -55,6 +55,7 @@
         "konva": "^8.4.3",
         "lemonsqueezy-webhooks": "^0.0.1",
         "lemonsqueezy.ts": "^0.1.6",
+        "leva": "^0.9.34",
         "micro-memoize": "^4.0.10",
         "mime": "^3.0.0",
         "mkdirp": "^2.1.6",

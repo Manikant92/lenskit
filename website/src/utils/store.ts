@@ -6,9 +6,9 @@ import { create } from 'zustand'
 interface Store {
     stage?: Konva.Stage
     layer?: Konva.Layer
-    width?: number
-    height?: number
-    setSizes(width: number, height: number): void
+    // width?: number
+    // height?: number
+    // setSizes(width: number, height: number): void
     loadingImages: number
     resultImages: GeneratedImage[]
     addNewImages(images: GeneratedImage[]): void
@@ -26,9 +26,9 @@ export const useStore = create<Store>()((set) => ({
             loadingImages: Math.max(0, state.loadingImages + loadingImages),
         }))
     },
-    setSizes(width: number, height: number) {
-        set({ width, height })
-    },
+    // setSizes(width: number, height: number) {
+    //     set({ width, height })
+    // },
     addNewImages(images: GeneratedImage[]) {
         set((state) => ({
             ...state,
