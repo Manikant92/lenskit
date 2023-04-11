@@ -67,7 +67,8 @@ export function UploadButton({
             <Button
                 bg={bg}
                 icon={<UploadIcon className='w-5 h-5' />}
-                children={'Upload'}
+                className='font-bold'
+                children={'Upload Product Image'}
                 onClick={() => {
                     inputRef.current.click()
                 }}

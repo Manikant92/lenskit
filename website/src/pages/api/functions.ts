@@ -280,7 +280,7 @@ export async function generateImages({
                             let publicUrl = getPublicUrl(file)
                             results.push({
                                 publicUrl,
-                                aspectRatio: `${size.width / 64}:${
+                                aspectRatio: `${size.width / 64}/${
                                     size.height / 64
                                 }`,
                                 // prompt,

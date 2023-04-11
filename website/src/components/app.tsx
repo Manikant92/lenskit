@@ -1,4 +1,5 @@
 import classNames from 'classnames'
+import BarLoader from 'react-spinners/HashLoader'
 import { Leva, useControls } from 'leva'
 import { LevaCustomTheme } from 'leva/src/styles'
 import { levaStore } from 'leva'
@@ -76,7 +77,6 @@ function LeftPane() {
     const setLoadingImages = useStore((state) => state.setLoadingImages)
     const { fn: generate, isLoading } = useThrowingFn({
         async fn() {
-            let samples = 3
             try {
                 setLoadingImages(samples)
                 const results = await generateImages({
@@ -112,7 +112,12 @@ function LeftPane() {
             min: 1,
             max: 10,
             step: 1,
+            label: 'image count',
         },
+        // seed: {
+        //     value: '',
+        //     label: 'seed',
+        // },
         aspectRatio: {
             value: '1/1',
             options: {
@@ -151,6 +156,7 @@ function LeftPane() {
         })
         let wantedW = container.current.parentElement?.clientWidth || 0
         let scaleFactor = wantedW / w
+        // needed to use high quality downsampling of browser instead of canvas
         container.current.style.transform = `scale(${scaleFactor})`
 
         return () => {
@@ -190,7 +196,7 @@ function LeftPane() {
 
             <div className='space-y-2 text-sm'>
                 <UploadButton
-                    className='text-sm w-full'
+                    className='text-sm font-semibold w-full'
                     onUpload={({ publicUrl }) => {
                         setImageUrl(publicUrl)
                         setInitImage({ publicUrl, layer })
@@ -226,9 +232,9 @@ function LeftPane() {
                     />
                 </>
             )}
-            <div className=''>
-                <div className='font-mono text-sm'>Templates</div>
-                <div className=' grid place-content-start grid-cols-3 overflow-y-auto gap-4 max-h-[300px] p-2 -mx-2'>
+            <div className='space-y-2'>
+                <div className='font-mono text-sm opacity-70'>Templates</div>
+                <div className=' rounded-lg grid place-content-start grid-cols-3 overflow-y-auto gap-4 max-h-[300px] p-2 -mx-2'>
                     {templateImages.map((img, i) => {
                         return (
                             <button
@@ -500,11 +506,11 @@ function Images({}) {
                             aspectRatio={aspectRatio}
                             isLoading
                             key={'loading' + i}
-                            src={''}
                         />
                     )
                 })}
                 {images?.map((image, i) => {
+                    // console.log('image',image.aspectRatio)
                     return (
                         <GenImage
                             aspectRatio={image.aspectRatio}
@@ -515,6 +521,7 @@ function Images({}) {
                 })}
                 {Array.from({ length: 6 }).map((_, i) => (
                     <GenImage
+                        // isLoading
                         aspectRatio={aspectRatio}
                         key={'placeholder' + i}
                     />
@@ -524,7 +531,7 @@ function Images({}) {
     )
 }
 
-function GenImage({ aspectRatio, isLoading = false, src = '' }) {
+function GenImage({ aspectRatio='1/1', isLoading = false, src = '' }) {
     //  aspectRatio = '1/1'
     return (
         <div
@@ -532,7 +539,7 @@ function GenImage({ aspectRatio, isLoading = false, src = '' }) {
                 aspectRatio,
             }}
             className={classNames(
-                'flex text-2xl shadow-xl text-white flex-col items-center justify-center rounded-md bg-gray-700 ',
+                'flex w-full text-2xl shadow-xl text-white flex-col items-center justify-center rounded-md bg-gray-700 ',
                 isLoading ? 'animate-pulse' : '',
             )}
         >
@@ -540,7 +547,7 @@ function GenImage({ aspectRatio, isLoading = false, src = '' }) {
                 <Zoom>
                     <img
                         src={src}
-                        alt=''
+                        alt='generated image'
                         style={{
                             aspectRatio,
                         }}
@@ -548,6 +555,7 @@ function GenImage({ aspectRatio, isLoading = false, src = '' }) {
                     />
                 </Zoom>
             )}
+            {isLoading && <BarLoader className='' />}
         </div>
     )
 }
