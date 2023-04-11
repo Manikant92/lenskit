@@ -212,6 +212,7 @@ export async function generateImages({
         type: 'image-to-image-masking',
         initImage,
         maskImage,
+        
         prompts: [
             {
                 text: prompt,

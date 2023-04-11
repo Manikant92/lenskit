@@ -179,6 +179,7 @@ export function buildGenerationRequest(
     }
 
     const imageParams = new Generation.ImageParameters()
+    
     if (params.type === 'text-to-image') {
         params.width && imageParams.setWidth(params.width)
         params.height && imageParams.setHeight(params.height)
@@ -242,6 +243,7 @@ export function buildGenerationRequest(
     } else if (params.type === 'image-to-image-masking') {
         // Step schedule start is always 1 for masking requests
         scheduleParams.setStart(1)
+        // scheduleParams.setEnd(1)
     }
 
     stepParams.setSchedule(scheduleParams)
@@ -280,6 +282,8 @@ export function buildGenerationRequest(
         request.addPrompt(createMaskImagePrompt(params.maskImage))
     }
 
+    
+
     return request
 }
 
@@ -291,8 +295,10 @@ function createInitImagePrompt(imageBinary: Buffer): Generation.Prompt {
     const initImageParameters = new Generation.PromptParameters()
     initImageParameters.setInit(true)
     initImageParameters.setWeight(2)
+    
     // initImageParameters.setWeight(50)
     const initImagePrompt = new Generation.Prompt()
+    
     initImagePrompt.setParameters(initImageParameters)
     initImagePrompt.setArtifact(initImageArtifact)
 

@@ -18,6 +18,7 @@ import { env } from '@app/env'
 import { LightningBoltIcon } from '@heroicons/react/solid'
 import { GeneratedImage, generateImages } from '@app/pages/api/functions'
 import { useStore } from '@app/utils/store'
+import { ChakraProvider, Select } from '@chakra-ui/react'
 
 let debugMask = env.NEXT_PUBLIC_ENV !== 'production' && true
 
@@ -75,8 +76,8 @@ function LeftPaneTop() {
     const setLoadingImages = useStore((state) => state.setLoadingImages)
     const { fn: generate, isLoading } = useThrowingFn({
         async fn() {
+            let samples = 3
             try {
-                let samples = 3
                 setLoadingImages(samples)
                 const results = await generateImages({
                     samples,
@@ -86,7 +87,7 @@ function LeftPaneTop() {
                 })
                 addNewImages(results)
             } finally {
-                setLoadingImages(0)
+                setLoadingImages(-samples)
             }
         },
         errorMessage: 'Failed to generate image',
@@ -201,7 +202,7 @@ function LeftPaneTop() {
                 className='mt-12 font-semibold'
                 bg='blue.500'
                 icon={<LightningBoltIcon className='w-4' />}
-                isLoading={isLoading}
+                // isLoading={isLoading}
                 onClick={async () => {
                     generate()
                     //
@@ -303,6 +304,7 @@ function getMaskFromCanvas(_stage: Konva.Stage) {
     layer.add(background)
     background.moveToBottom()
     // console.log(image.id())
+
     image = image.cache()
 
     // image.scale({ x: 0.99, y: 0.99,  })
@@ -311,10 +313,14 @@ function getMaskFromCanvas(_stage: Konva.Stage) {
         Konva.Filters.Brighten,
         Konva.Filters.Contrast,
         Konva.Filters.Blur,
+        Konva.Filters.Threshold,
     ])
-    image.brightness(5)
+    image.brightness(500)
     image.contrast(0.1)
-    image.blurRadius(1)
+    image.threshold(0.2)
+    // image = image.cache()
+    // image.brightness(500)
+    image.blurRadius(2)
     let url = stageToDataURL(cloned)
     cloned.destroy()
 

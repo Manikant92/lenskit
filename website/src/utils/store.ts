@@ -19,10 +19,12 @@ interface Store {
 export const useStore = create<Store>()((set) => ({
     resultImages: [] as GeneratedImage[],
     loadingImages: 0,
-    width: 512 + 512 / 2,
-    height: 512,
+    width: 768,
+    height: 768,
     setLoadingImages(loadingImages: number) {
-        set({ loadingImages })
+        set((state) => ({
+            loadingImages: Math.max(0, state.loadingImages + loadingImages),
+        }))
     },
     setSizes(width: number, height: number) {
         set({ width, height })
