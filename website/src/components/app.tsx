@@ -14,15 +14,19 @@ import { useRef, useEffect, useState, Fragment } from 'react'
 // import "fabric-history"
 import { Pane } from 'tweakpane'
 
-import { aspectRatios, getImageSizeFromAspectRatio, objFromArr } from '@app/utils/utils'
+import {
+    aspectRatios,
+    getImageSizeFromAspectRatio,
+    objFromArr,
+} from '@app/utils/utils'
 import { UploadButton } from './upload'
 import { atom, useAtom } from 'jotai'
 import { Button, Input, useThrowingFn } from 'beskar/landing'
 import { env } from '@app/env'
-import { LightningBoltIcon } from '@heroicons/react/solid'
+import { DownloadIcon, LightningBoltIcon } from '@heroicons/react/solid'
 import { GeneratedImage, generateImages } from '@app/pages/api/functions'
 import { useStore } from '@app/utils/store'
-import { ChakraProvider, Select } from '@chakra-ui/react'
+import { ChakraProvider, IconButton, Select } from '@chakra-ui/react'
 import colors from 'beskar/colors'
 
 let debugMask = env.NEXT_PUBLIC_ENV !== 'production' && false
@@ -162,7 +166,7 @@ function LeftPane() {
 
     const [w, h] = getImageSizeFromAspectRatio(aspectRatio)
     return (
-        <div className='h-full w-[300px] lg:w-[500px] overflow-y-scroll max-h-full dark:bg-gray-900 p-6 pt-[30px] flex-shrink-0 flex flex-col gap-3 '>
+        <div className='h-full w-[500px] overflow-y-scroll max-h-full dark:bg-gray-900 p-6 pt-[30px] flex-shrink-0 flex flex-col gap-3 '>
             <div
                 style={{
                     aspectRatio,
@@ -496,6 +500,7 @@ function Images({}) {
                         <GenImage
                             aspectRatio={image.aspectRatio}
                             key={image.publicUrl}
+                            filename={`${image.prompt} ${image.seed}.png`}
                             src={image.publicUrl}
                         />
                     )
@@ -512,7 +517,13 @@ function Images({}) {
     )
 }
 
-function GenImage({ aspectRatio = '1/1', isLoading = false, src = '' }) {
+function GenImage({
+    aspectRatio = '1/1',
+    filename = '',
+    isLoading = false,
+    src = '',
+}) {
+    let image = useRef<HTMLImageElement>(null)
     //  aspectRatio = '1/1'
     return (
         <div
@@ -520,13 +531,14 @@ function GenImage({ aspectRatio = '1/1', isLoading = false, src = '' }) {
                 aspectRatio,
             }}
             className={classNames(
-                'flex w-full text-2xl shadow-xl text-white flex-col items-center justify-center rounded-md bg-gray-700 ',
+                'flex w-full group relative text-2xl shadow-xl text-white flex-col items-center justify-center rounded-md bg-gray-700 ',
                 isLoading ? 'animate-pulse' : '',
             )}
         >
             {src && (
                 <Zoom>
                     <img
+                        ref={image}
                         src={src}
                         alt='generated image'
                         style={{
@@ -537,6 +549,34 @@ function GenImage({ aspectRatio = '1/1', isLoading = false, src = '' }) {
                 </Zoom>
             )}
             {isLoading && <BarLoader className='' />}
+            {src && (
+                <Button
+                    onClick={async () => {
+                        // download attribute doesn't work with cross origin images
+                        // https://javascript.plainenglish.io/how-to-download-files-with-javascript-996b8a025d3f
+                        fetch(src, {
+                            method: 'get',
+                            // mode: 'no-cors',
+                            referrerPolicy: 'no-referrer',
+                        })
+                            .then((res) => res.blob())
+                            .then((res) => {
+                                const aElement = document.createElement('a')
+                                aElement.setAttribute('download', filename)
+                                const href = URL.createObjectURL(res)
+                                aElement.href = href
+                                aElement.setAttribute('target', '_blank')
+                                aElement.click()
+                                URL.revokeObjectURL(href)
+                            })
+                    }}
+                    bg='gray.800'
+                    className='shadow-xl gap-2 items-center text-sm hover:scale-105 block !absolute right-3 bottom-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100'
+                >
+                    <DownloadIcon className=' text-white w-5 ' />
+                    {/* <span className=''>download</span> */}
+                </Button>
+            )}
         </div>
     )
 }

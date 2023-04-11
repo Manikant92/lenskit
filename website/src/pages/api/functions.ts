@@ -193,6 +193,8 @@ function getPublicUrl(file: File) {
 export type GeneratedImage = {
     publicUrl: string
     aspectRatio: string
+    seed: string
+    prompt: string
 }
 
 export async function generateImages({
@@ -255,7 +257,7 @@ export async function generateImages({
                             let buffer = Buffer.from(
                                 await artifact.getBinary_asU8(),
                             )
-                            
+
                             let contentType = await artifact.getMime()
                             let filename = String(artifact.getSeed())
                             // let prompt = String(artifact.getPrompt())
@@ -284,7 +286,8 @@ export async function generateImages({
                                 aspectRatio: `${size.width / 64}/${
                                     size.height / 64
                                 }`,
-                                // prompt,
+                                prompt,
+                                seed: String(artifact.getSeed()),
                             })
                             // const file = bucket.file(fullName)
                             // file.createResumableUpload({})
