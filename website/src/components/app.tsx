@@ -139,6 +139,7 @@ function LeftPane() {
             options: aspectRatios,
         },
     }))
+    let wantedH = 300
     useEffect(() => {
         console.log('konva')
         let width = container.current?.clientWidth || w
@@ -163,10 +164,17 @@ function LeftPane() {
             publicUrl: defaultInitImage,
             layer,
         })
-        let wantedW = container.current.parentElement?.clientWidth || 0
-        let scaleFactor = wantedW / w
+        let parent = container.current.parentElement
+        let maxW = parent?.clientWidth || 0
+
+        let scaleFactorH = wantedH / h
+        let scaleFactorW = maxW / w
+        let scaleFactor = Math.min(scaleFactorH, scaleFactorW)
+        let paddingLeft = (maxW - w * scaleFactor) / 2
+        
         // needed to use high quality downsampling of browser instead of canvas
-        container.current.style.transform = `scale(${scaleFactor})`
+        container.current.style.transform = `translate(${paddingLeft}px) scale(${scaleFactor})`
+        
 
         return () => {
             layer.destroy()
@@ -181,12 +189,13 @@ function LeftPane() {
             <div
                 style={{
                     aspectRatio,
+                    height: wantedH,
                 }}
-                className='flex relative shrink-0 w-full border flex-col gap-3 '
+                className='flex relative items-center shrink-0 w-full flex-col gap-3 '
             >
                 <div
                     ref={container}
-                    className='absolute left-0 top-0 origin-top-left bg-white border rounded-md '
+                    className='absolute left-0 top-0 origin-top-left bg-white rounded-md '
                 ></div>
             </div>
 
@@ -459,7 +468,7 @@ function Images({}) {
                     1000: 2,
                     500: 1,
                 }}
-                className='flex w-full -ml-[30px] '
+                className='flex w-full -ml-[30px] pb-[100px]'
                 columnClassName='space-y-8 pl-[30px]'
             >
                 {images?.map((image, i) => {
