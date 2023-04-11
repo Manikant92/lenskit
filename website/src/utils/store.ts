@@ -3,49 +3,40 @@ import { setMaxListeners } from 'events'
 import Konva from 'konva'
 import { create } from 'zustand'
 
+type GeneratedImageWithState = Partial<GeneratedImage> & {
+    isLoading?: boolean
+}
+
 interface Store {
     stage?: Konva.Stage
     layer?: Konva.Layer
     // width?: number
     // height?: number
     // setSizes(width: number, height: number): void
-    loadingImages: Partial<GeneratedImage>[]
-    resultImages: GeneratedImage[]
-    addNewImages(images: GeneratedImage[]): void
+
+    resultImages: GeneratedImageWithState[]
+    addNewImages(images: GeneratedImageWithState[]): void
     init({ stage, layer }): void
-    addLoadingImages({ loadingImages, aspectRatio }): void
-    removeLoadingImages(n: number): void
 }
 
 export const useStore = create<Store>()((set) => ({
     resultImages: [],
     loadingImages: [],
 
-    addLoadingImages({ loadingImages, aspectRatio }) {
-        set((state) => ({
-            loadingImages: [
-                ...state.loadingImages,
-                ...Array.from({
-                    length: loadingImages,
-                })?.map((image, i) => {
-                    return { aspectRatio }
-                }),
-            ],
-        }))
-    },
-    removeLoadingImages(n) {
-        set((state) => ({
-            loadingImages: state.loadingImages.slice(n),
-        }))
-    },
     // setSizes(width: number, height: number) {
     //     set({ width, height })
     // },
-    addNewImages(images: GeneratedImage[]) {
-        set((state) => ({
-            ...state,
-            resultImages: [...images, ...state.resultImages],
-        }))
+    addNewImages(images) {
+        set((state) => {
+            let ids = new Set(images.map((i) => i.id))
+            return {
+                ...state,
+                resultImages: [
+                    ...images,
+                    ...state.resultImages.filter((i) => !ids.has(i.id)),
+                ],
+            }
+        })
     },
     init({ stage, layer }) {
         set({ stage, layer })

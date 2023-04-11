@@ -30,8 +30,11 @@ import { GeneratedImage, generateImages } from '@app/pages/api/functions'
 import { useStore } from '@app/utils/store'
 import { ChakraProvider, IconButton, Select } from '@chakra-ui/react'
 import colors from 'beskar/colors'
+import cuid from 'cuid'
 
 let debugMask = env.NEXT_PUBLIC_ENV !== 'production' && false
+
+const cheapMode = true
 
 const imageUrlAtom = atom<string>('')
 
@@ -85,21 +88,29 @@ function LeftPane() {
     // const [prompt, setPrompt] = useState(
     //     templateImages[selectedTemplateIndex]?.prompt || '',
     // )
-    const addLoadingImages = useStore((state) => state.addLoadingImages)
-    const removeLoadingImages = useStore((state) => state.removeLoadingImages)
+
     const { fn: generate, isLoading } = useThrowingFn({
         async fn() {
             try {
-                addLoadingImages({ loadingImages: samples, aspectRatio })
+                let ids = Array.from({ length: samples }, () => cuid())
+                addNewImages(
+                    ids.map((id) => {
+                        return {
+                            id,
+                            aspectRatio,
+                            isLoading: true,
+                        }
+                    }),
+                )
                 const results = await generateImages({
                     samples,
+                    ids,
                     initImageUrl: getInitFromCanvas(stage),
                     maskImageUrl: getMaskFromCanvas(stage),
                     prompt: prompt.replace('[product]', product),
                 })
                 addNewImages(results)
             } finally {
-                removeLoadingImages(samples)
             }
         },
         errorMessage: 'Failed to generate image',
@@ -294,7 +305,7 @@ function stageToDataURL(_stage: Konva.Stage) {
         image.cache()
     })
     let url = clone.toDataURL({
-        pixelRatio: 1,
+        pixelRatio: cheapMode ? 0.5 : 1,
         // quality: 100,
         // width,
         // height,
@@ -434,15 +445,13 @@ function setInitImage({
 
 function Images({}) {
     const images = useStore((store) => store.resultImages)
-    const loadingImages = useStore((store) => store.loadingImages)
-    const aspectRatio = levaStore.useStore(
-        (store) => store.data['aspectRatio']?.['value'],
-    )
 
-    console.log('rendering images', aspectRatio)
+    // const aspectRatio = levaStore.useStore(
+    //     (store) => store.data['aspectRatio']?.['value'],
+    // )
+
     return (
         <div className='px-[40px] pt-[30px] w-full h-full overflow-y-auto '>
-            <style jsx global>{``}</style>
             <Masonry
                 breakpointCols={{
                     default: 4,
@@ -453,21 +462,14 @@ function Images({}) {
                 className='flex w-full -ml-[30px] '
                 columnClassName='space-y-8 pl-[30px]'
             >
-                {loadingImages?.map((image, i) => {
-                    return (
-                        <GenImage
-                            aspectRatio={aspectRatio}
-                            isLoading
-                            key={'loading' + i}
-                        />
-                    )
-                })}
                 {images?.map((image, i) => {
                     // console.log('image',image.aspectRatio)
+
                     return (
                         <GenImage
                             aspectRatio={image.aspectRatio}
-                            key={image.publicUrl}
+                            isLoading={image.isLoading}
+                            key={image.id}
                             filename={`${image.prompt
                                 ?.replace(/ /g, '-')
                                 .replace(/,/g, '')
@@ -476,10 +478,10 @@ function Images({}) {
                         />
                     )
                 })}
-                {Array.from({ length: 6 }).map((_, i) => (
+                {Array.from({ length: 3 }).map((_, i) => (
                     <GenImage
                         // isLoading
-                        aspectRatio={aspectRatio}
+                        aspectRatio={'1/1'}
                         key={'placeholder' + i}
                     />
                 ))}
@@ -502,12 +504,12 @@ function GenImage({
                 aspectRatio,
             }}
             className={classNames(
-                'flex w-full group relative text-2xl shadow-xl text-white flex-col items-center justify-center rounded-md bg-gray-700 ',
+                'flex w-full group relative text-2xl shadow-xl text-white flex-col items-stretch justify-center rounded-md bg-gray-700 ',
                 isLoading ? 'animate-pulse' : '',
             )}
         >
             {src && (
-                <Zoom>
+                <Zoom wrapElement='div'>
                     <img
                         ref={image}
                         src={src}
@@ -515,11 +517,15 @@ function GenImage({
                         style={{
                             aspectRatio,
                         }}
-                        className='w-full rounded'
+                        className='w-full h-full grow rounded'
                     />
                 </Zoom>
             )}
-            {isLoading && <BarLoader className='' />}
+            {isLoading && (
+                <div className='flex items-center justify-center'>
+                    <BarLoader className='' />
+                </div>
+            )}
             {src && (
                 <Button
                     onClick={async () => {

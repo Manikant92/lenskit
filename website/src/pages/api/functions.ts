@@ -195,10 +195,14 @@ export type GeneratedImage = {
     aspectRatio: string
     seed: string
     prompt: string
+    id: string
 }
+
+
 
 export async function generateImages({
     samples = 1,
+    ids,
     initImageUrl,
     maskImageUrl,
     prompt,
@@ -287,6 +291,7 @@ export async function generateImages({
                                     size.height / 64
                                 }`,
                                 prompt,
+                                id: ids.shift(),
                                 seed: String(artifact.getSeed()),
                             })
                             // const file = bucket.file(fullName)
