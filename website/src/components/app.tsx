@@ -139,7 +139,7 @@ function LeftPane() {
             options: aspectRatios,
         },
     }))
-    let wantedH = 300
+    let wantedH = 440
     useEffect(() => {
         console.log('konva')
         let width = container.current?.clientWidth || w
@@ -171,10 +171,10 @@ function LeftPane() {
         let scaleFactorW = maxW / w
         let scaleFactor = Math.min(scaleFactorH, scaleFactorW)
         let paddingLeft = (maxW - w * scaleFactor) / 2
-        
+        let paddingTop = (wantedH - h * scaleFactor) / 2
+
         // needed to use high quality downsampling of browser instead of canvas
-        container.current.style.transform = `translate(${paddingLeft}px) scale(${scaleFactor})`
-        
+        container.current.style.transform = `translate(${paddingLeft}px, ${paddingTop}px) scale(${scaleFactor})`
 
         return () => {
             layer.destroy()
