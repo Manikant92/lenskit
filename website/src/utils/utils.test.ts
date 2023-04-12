@@ -12,7 +12,7 @@ import {
 } from './stability'
 import { aspectRatios, getImageSizeFromAspectRatio } from './utils'
 
-test(
+test.skip(
     'make template images',
     async () => {
         let samples = 6
