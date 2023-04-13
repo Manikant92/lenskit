@@ -56,6 +56,7 @@ test(
         const encoded = fs
             .readFileSync('./test-images/init_image.png')
             .toString('base64')
+
         let out: any = await banana.run(env.BANANA_API_KEY, modelKey, {
             prompt: 'product photography, extremely detailed',
             negative_prompt:
@@ -64,8 +65,8 @@ test(
             image_data: encoded,
         })
         console.timeEnd(`banana`)
-        const { image_base64, canny_base64 } = out.modelOutputs[0]
-        console.log(out.modelOutputs)
+        const { image_base64, canny_base64 } = out.modelOutputs[0].outputs
+        // console.log(out.modelOutputs)
 
         fs.writeFileSync(
             path.resolve(`test-images/banana-controlnet-image.png`),
@@ -74,6 +75,44 @@ test(
         fs.writeFileSync(
             path.resolve(`test-images/banana-controlnet-canny.png`),
             Buffer.from(canny_base64, 'base64'),
+        )
+    },
+    1000 * 1000,
+)
+
+test(
+    'banana webui',
+    async () => {
+        let modelKey = `bffe7148-0f3e-4554-bcda-aa44d77b01e0`
+        console.time(`banana`)
+        const encoded = fs
+            .readFileSync('./test-images/init_image.png')
+            .toString('base64')
+
+        let out: any = await banana.run(env.BANANA_API_KEY, modelKey, {
+            endpoint: 'txt2img',
+            params: {
+                prompt: 'banana',
+                // negative_prompt: 'low quality',
+                // steps: 25,
+                // sampler_name: 'Euler a',
+                // cfg_scale: 7.5,
+                // seed: 42,
+                // batch_size: 1,
+                // n_iter: 1,
+                // width: 768,
+                // height: 768,
+                // tiling: false,
+            },
+        })
+        console.timeEnd(`banana`)
+
+        const { images } = out.modelOutputs[0]
+        // console.log(out.modelOutputs)
+
+        fs.writeFileSync(
+            path.resolve(`test-images/banana-webui-image.png`),
+            Buffer.from(images[0], 'base64'),
         )
     },
     1000 * 1000,
