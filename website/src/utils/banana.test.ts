@@ -58,10 +58,10 @@ test(
             .toString('base64')
 
         let out: any = await banana.run(env.BANANA_API_KEY, modelKey, {
-            prompt: 'product photography, extremely detailed',
+            prompt: 'product photography, extremely detailed, with grand canyon background',
             negative_prompt:
                 'monochrome, lowres, bad anatomy, worst quality, low quality',
-            num_inference_steps: 20,
+            num_inference_steps: 30,
             image_data: encoded,
         })
         console.timeEnd(`banana`)
