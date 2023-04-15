@@ -1,0 +1,3 @@
+{
+    "vitest.commandLine": "doppler run -- pnpm vitest --root ${baseDir}"
+}

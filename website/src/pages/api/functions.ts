@@ -214,7 +214,7 @@ export async function generateImages({
     const initImage = await getImageBuffer(initImageUrl)
     const maskImage = await getImageBuffer(maskImageUrl)
 
-    const request = buildGenerationRequest('stable-diffusion-768-v2-1', {
+    const request = buildGenerationRequest('stable-diffusion-xl-beta-v2-2-2', {
         // type: 'text-to-image',
         type: 'image-to-image-masking',
         initImage,

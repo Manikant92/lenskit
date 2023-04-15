@@ -41,6 +41,7 @@ export type EngineId =
     | 'stable-diffusion-v1-5'
     | 'stable-diffusion-v1'
     | 'esrgan-v1-x2plus'
+    | 'stable-diffusion-xl-beta-v2-2-2'
 
 // Authenticate using your API key, don't commit your key to a public repository!
 export const myStabilityMetadata = new GRPCWeb.Metadata()

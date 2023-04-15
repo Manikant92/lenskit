@@ -12,7 +12,7 @@ import {
 } from './stability'
 import { aspectRatios, getImageSizeFromAspectRatio } from './utils'
 
-test.skip(
+test(
     'make template images',
     async () => {
         let samples = 6
@@ -62,7 +62,7 @@ test.skip(
             }
             console.log('generating templates for ', prompt)
             let i = 0
-            const request = buildGenerationRequest('stable-diffusion-v1-5', {
+            const request = buildGenerationRequest('stable-diffusion-xl-beta-v2-2-2', {
                 // type: 'text-to-image',
                 type: 'image-to-image-masking',
                 initImage: fs.readFileSync('./test-images/init_image.png'),
