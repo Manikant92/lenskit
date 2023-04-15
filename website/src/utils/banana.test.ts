@@ -12,6 +12,7 @@ import {
     getModels,
 } from './stability'
 import { aspectRatios, getImageSizeFromAspectRatio } from './utils'
+import { initAndBind } from '@sentry/nextjs'
 
 test.skip(
     'banana webui',
@@ -57,13 +58,22 @@ test(
             .readFileSync('./test-images/init_image.png')
             .toString('base64')
 
-        let out: any = await banana.run(env.BANANA_API_KEY, modelKey, {
-            prompt: 'product photography, extremely detailed, with grand canyon background',
-            negative_prompt:
-                'monochrome, lowres, bad anatomy, worst quality, low quality',
-            num_inference_steps: 30,
-            image_data: encoded,
-        })
+        let [out]: any = await Promise.all([
+            banana.run(env.BANANA_API_KEY, modelKey, {
+                prompt: 'product photography, extremely detailed, with grand canyon background',
+                negative_prompt:
+                    'monochrome, lowres, bad anatomy, worst quality, low quality',
+                num_inference_steps: 30,
+                image_data: encoded,
+            }),
+            banana.run(env.BANANA_API_KEY, modelKey, {
+                prompt: 'product photography, extremely detailed, with grand canyon background',
+                negative_prompt:
+                    'monochrome, lowres, bad anatomy, worst quality, low quality',
+                num_inference_steps: 30,
+                image_data: encoded,
+            }),
+        ])
         console.timeEnd(`banana`)
         const { image_base64, canny_base64 } = out.modelOutputs[0].outputs
         // console.log(out.modelOutputs)
@@ -76,6 +86,42 @@ test(
             path.resolve(`test-images/banana-controlnet-canny.png`),
             Buffer.from(canny_base64, 'base64'),
         )
+    },
+    1000 * 1000,
+)
+
+test(
+    'banana inpaint',
+    async () => {
+        let modelKey = `779fe437-83b5-43c7-8578-e2b56f3f8822`
+        console.time(`banana`)
+        const initImage = fs
+            .readFileSync('./test-images/init_image.png')
+            .toString('base64')
+        const maskImage = fs
+            .readFileSync('./test-images/mask_image.png')
+            .toString('base64')
+
+        let [out]: any = await Promise.all([
+            banana.run(env.BANANA_API_KEY, modelKey, {
+                prompt: 'product photography, extremely detailed, with grand canyon background',
+                negative_prompt:
+                    'monochrome, lowres, bad anatomy, worst quality, low quality',
+                num_inference_steps: 30,
+                init_image: initImage,
+                mask_image: maskImage,
+                controlImage: initImage,
+            }),
+        ])
+        console.timeEnd(`banana`)
+        const { image_base64, canny_base64 } = out.modelOutputs[0].outputs
+        // console.log(out.modelOutputs)
+
+        fs.writeFileSync(
+            path.resolve(`test-images/banana-inpaint-image.png`),
+            Buffer.from(image_base64, 'base64'),
+        )
+        
     },
     1000 * 1000,
 )
