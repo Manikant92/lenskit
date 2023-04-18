@@ -359,14 +359,15 @@ function getMaskFromCanvas(_stage: Konva.Stage) {
         Konva.Filters.Brighten,
         Konva.Filters.Contrast,
         Konva.Filters.Blur,
-        Konva.Filters.Threshold,
+        // Konva.Filters.Threshold,
     ])
-    image.brightness(500)
+    // image.scale({ x: 0.99, y: 0.99 })
+    image.brightness(5)
     image.contrast(0.1)
-    image.threshold(0.2)
+    // image.threshold(0.2)
     // image = image.cache()
     // image.brightness(500)
-    image.blurRadius(2)
+    image.blurRadius(1)
     let url = stageToDataURL(cloned)
     cloned.destroy()
 
