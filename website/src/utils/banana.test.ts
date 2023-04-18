@@ -107,13 +107,17 @@ test(
                 prompt: 'product photography, extremely detailed, with grand canyon background',
                 negative_prompt:
                     'monochrome, lowres, bad anatomy, worst quality, low quality',
-                num_inference_steps: 30,
+                num_inference_steps: 10,
                 init_image: initImage,
                 mask_image: maskImage,
                 controlImage: initImage,
             }),
         ])
+
         console.timeEnd(`banana`)
+        if (out.error) {
+            console.log(out.error)
+        }
         const { image_base64, canny_base64 } = out.modelOutputs[0].outputs
         // console.log(out.modelOutputs)
 
