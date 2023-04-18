@@ -79,3 +79,71 @@ export function UploadButton({
         </div>
     )
 }
+
+export function LocalUploadButton({
+    onUpload,
+    bg,
+    ...rest
+}: {
+    onUpload: (a: { dataSrc: string }) => void
+    bg?: string
+} & ComponentPropsWithoutRef<typeof Button>) {
+    const [loading, setLoading] = React.useState(false)
+    const uploadPhoto = async (e) => {
+        setLoading(true)
+        console.log(`uploading`)
+        try {
+            const file = e.target.files[0]
+            if (!file) {
+                console.log('No file selected')
+                return
+            }
+            
+
+            const dataSrc = await new Promise<string>((resolve) => {
+                const reader = new FileReader()
+                reader.addEventListener(
+                    'load',
+                    function () {
+                        resolve(reader.result.toString())
+                    },
+                    false,
+                )
+                reader.readAsDataURL(file)
+            })
+            if (!dataSrc) {
+                console.log('No dataSrc')
+                return
+            }
+            console.log(`dataSrc`, dataSrc.slice(0, 100))
+
+            await onUpload({ dataSrc })
+        } finally {
+            setLoading(false)
+        }
+    }
+    const inputRef = useRef<any>()
+    return (
+        <div>
+            <input
+                type='file'
+                onChange={uploadPhoto}
+                accept='image/*'
+                ref={inputRef}
+                style={{ display: 'none' }}
+            />
+            <Button
+                bg={bg}
+                icon={<UploadIcon className='w-5 h-5' />}
+                className='font-bold'
+                children={'Upload Product Image'}
+                onClick={() => {
+                    inputRef.current.click()
+                }}
+                {...rest}
+                isLoading={loading || rest.isLoading}
+            />
+            {/* <div className='text-sm opacity-60'>{filename}</div> */}
+        </div>
+    )
+}

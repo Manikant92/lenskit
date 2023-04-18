@@ -1,24 +1,23 @@
 import { env } from '@app/env'
 import Replicate from 'replicate'
+import { getImageBuffer } from './ssr'
 
 const replicate = new Replicate({
     auth: env.REPLICATE_API_TOKEN,
 })
 
-export async function inpaintReplicate({
-    samples,
-    ids,
-    initImageUrl,
-    maskImageUrl,
-    prompt,
-}) {
+export async function removeBackgroundWithReplicate({ imageBase64 }) {
     const model =
-        'andreasjansson/stable-diffusion-inpainting:e490d072a34a94a11e9711ed5a6ba621c3fab884eda1665d9d3a282d65a21180'
+        'pollinations/modnet:da7d45f3b836795f945f221fc0b01a6d3ab7f5e163f13208948ad436001e2255'
 
-    const output = await replicate.run(model, {
+    const output: any = await replicate.run(model, {
         input: {
-            prompt: 'a 19th century portrait of a raccoon gentleman wearing a suit',
+            image: imageBase64,
         },
     })
-    console.log(output)
+    console.log({ output })
+    const buffer = await getImageBuffer(output)
+    const outputImageUrl = 'data:image;base64,' +   buffer.toString('base64')
+     
+    return { outputImageUrl }
 }

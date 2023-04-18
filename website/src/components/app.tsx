@@ -5,6 +5,7 @@ import { LevaCustomTheme } from 'leva/src/styles'
 import { levaStore } from 'leva'
 import Zoom from 'react-medium-image-zoom'
 
+import { Modal } from 'beskar/landing'
 import templateImages from '@app/../public/templates.json'
 
 import Konva from 'konva'
@@ -21,18 +22,22 @@ import {
     getImageSizeFromAspectRatio,
     objFromArr,
 } from '@app/utils/utils'
-import { UploadButton } from './upload'
+import { LocalUploadButton, UploadButton } from './upload'
 import { atom, useAtom } from 'jotai'
 import { Button, Input, useThrowingFn } from 'beskar/landing'
 import { env } from '@app/env'
 import { DownloadIcon, LightningBoltIcon } from '@heroicons/react/solid'
-import { GeneratedImage, generateImages } from '@app/pages/api/functions'
+import {
+    GeneratedImage,
+    generateImages,
+    removeBackground,
+} from '@app/pages/api/functions'
 import { useStore } from '@app/utils/store'
 import { ChakraProvider, IconButton, Select } from '@chakra-ui/react'
 import colors from 'beskar/colors'
 import cuid from 'cuid'
 
-let debugMask = env.NEXT_PUBLIC_ENV !== 'production' && false
+let debugMask = env.NEXT_PUBLIC_ENV !== 'production' && true
 
 const cheapMode = true
 
@@ -78,9 +83,9 @@ function LeftPane() {
         state.stage,
         state.layer,
     ])
+    const toggleBgModal = useStore((state) => state.toggleBgModal)
     // const [w, h] = useStore((state) => [state.width, state.height])
 
-    const [imageUrl, setImageUrl] = useAtom(imageUrlAtom)
     const container = useRef<HTMLDivElement>(null)
 
     const [debugImageUrl, setDebugImageUrl] = useState('')
@@ -184,6 +189,14 @@ function LeftPane() {
     }, [aspectRatio])
 
     const [w, h] = getImageSizeFromAspectRatio(aspectRatio)
+    const { fn: processImage, isLoading: isRemovingBg } = useThrowingFn({
+        async fn(imageWithBg) {
+            const { outputImageUrl } = await removeBackground({
+                dataUrl: imageWithBg,
+            })
+            setInitImage({ layer, publicUrl: outputImageUrl })
+        },
+    })
     return (
         <div className='h-full w-[500px] overflow-y-scroll max-h-full dark:bg-gray-900 p-6 pt-[30px] flex-shrink-0 flex flex-col gap-3 '>
             <div
@@ -200,11 +213,12 @@ function LeftPane() {
             </div>
 
             <div className='space-y-2 text-sm'>
-                <UploadButton
+                <LocalUploadButton
                     className='text-sm font-semibold w-full'
-                    onUpload={({ publicUrl }) => {
-                        setImageUrl(publicUrl)
-                        setInitImage({ publicUrl, layer })
+                    isLoading={isRemovingBg && 'Removing background...'}
+                    onUpload={({ dataSrc }) => {
+                        processImage(dataSrc)
+                        
                     }}
                 />
             </div>
@@ -598,27 +612,75 @@ export function App({}) {
                             </div>
                         ))}
                 </div> */}
+                {/* <UploadModal /> */}
             </div>
         </div>
     )
 }
 
-function aspectRatioToStyle(aspectRatio: number) {
-    // aspectRatio is width / height
-    if (!aspectRatio) {
-        return
-    }
-    let above = aspectRatio * 100
-    let below = 100
-}
-
-// function from https://stackoverflow.com/a/15832662/512042
-function downloadURI(uri, name) {
-    var link = document.createElement('a')
-    link.download = name
-    link.href = uri
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    // delete link;
-}
+// function UploadModal({}) {
+//     // after image is uploaded
+//     // remove background
+//     //
+//     const layer = useStore((store) => store.layer)
+//     const [isOpen, toggle, imageWithBg] = useStore((store) => [
+//         store.bgModalIsOpen,
+//         store.toggleBgModal,
+//         store.imageWithBg,
+//     ])
+//     const { fn, isLoading } = useThrowingFn({
+//         async fn() {
+//             const { imageUrl } = await removeBackground({
+//                 imageBase64: imageWithBg,
+//             })
+//             console.log('imageUrl', imageUrl)
+//             setInitImage({ layer, publicUrl: imageUrl })
+//         },
+//     })
+//     return (
+//         <Modal
+//             useDefaultContentStyle
+//             isOpen={isOpen}
+//             onClose={toggle}
+//             maxWidth='600px'
+//             className='ring ring-gray-600'
+//             content={
+//                 <div className='w-full p-8 gap-6 flex flex-col items-center'>
+//                     <div className='gap-6 flex flex-col items-center'>
+//                         <div className='text-4xl font-semibold'>
+//                             Remove Background
+//                         </div>
+//                         <img
+//                             src={imageWithBg}
+//                             alt='image with bg'
+//                             className='rounded-md max-h-[700px]'
+//                         />
+//                         <div className='flex w-full gap-4'>
+//                             <Button
+//                                 className='grow'
+//                                 isLoading={isLoading}
+//                                 onClick={() => {}}
+//                             >
+//                                 Yes
+//                             </Button>
+//                             {/* <div className="grow"></div> */}
+//                             <Button
+//                                 className='grow'
+//                                 onClick={() => {
+//                                     setInitImage({
+//                                         layer,
+//                                         publicUrl: imageWithBg,
+//                                     })
+//                                     toggle('')
+//                                 }}
+//                                 bg='blue.500'
+//                             >
+//                                 No
+//                             </Button>
+//                         </div>
+//                     </div>
+//                 </div>
+//             }
+//         />
+//     )
+// }

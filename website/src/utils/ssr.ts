@@ -72,3 +72,16 @@ export async function getOrgCredits({ orgId }) {
         free,
     }
 }
+
+export async function getImageBuffer(url) {
+    if (url.startsWith('data')) {
+        return Buffer.from(url.split(',')[1], 'base64')
+    }
+    const response = await fetch(url, {
+        headers: {
+            accept: 'image/*',
+        },
+    })
+    const buffer = Buffer.from(await response.arrayBuffer())
+    return buffer
+}

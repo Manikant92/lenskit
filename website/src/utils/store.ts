@@ -13,7 +13,9 @@ interface Store {
     // width?: number
     // height?: number
     // setSizes(width: number, height: number): void
-
+    bgModalIsOpen?: boolean
+    imageWithBg?: string
+    toggleBgModal(image: string): void
     resultImages: GeneratedImageWithState[]
     addNewImages(images: GeneratedImageWithState[]): void
     init({ stage, layer }): void
@@ -22,7 +24,9 @@ interface Store {
 export const useStore = create<Store>()((set) => ({
     resultImages: [],
     loadingImages: [],
-
+    toggleBgModal(imageWithBg) {
+        set((state) => ({ imageWithBg, bgModalIsOpen: !state.bgModalIsOpen }))
+    },
     // setSizes(width: number, height: number) {
     //     set({ width, height })
     // },
