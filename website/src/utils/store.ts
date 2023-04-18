@@ -6,16 +6,17 @@ import { create } from 'zustand'
 type GeneratedImageWithState = Partial<GeneratedImage> & {
     isLoading?: boolean
 }
-
+const defaultInitImage =
+    'https://generated-ai-uploads.storage.googleapis.com/6214c553-a7ce-4a9d-8179-e34edbf91d12-CocaLatt%252520Background%252520Removed.png'
 interface Store {
     stage?: Konva.Stage
     layer?: Konva.Layer
     // width?: number
     // height?: number
     // setSizes(width: number, height: number): void
-    bgModalIsOpen?: boolean
-    imageWithBg?: string
-    toggleBgModal(image: string): void
+
+    image: string
+    setImage(image: string): void
     resultImages: GeneratedImageWithState[]
     addNewImages(images: GeneratedImageWithState[]): void
     init({ stage, layer }): void
@@ -24,8 +25,9 @@ interface Store {
 export const useStore = create<Store>()((set) => ({
     resultImages: [],
     loadingImages: [],
-    toggleBgModal(imageWithBg) {
-        set((state) => ({ imageWithBg, bgModalIsOpen: !state.bgModalIsOpen }))
+    image: defaultInitImage,
+    setImage(image) {
+        set({ image })
     },
     // setSizes(width: number, height: number) {
     //     set({ width, height })

@@ -71,19 +71,20 @@ const levaTheme: LevaCustomTheme = {
     },
 }
 
-const defaultInitImage =
-    'https://generated-ai-uploads.storage.googleapis.com/6214c553-a7ce-4a9d-8179-e34edbf91d12-CocaLatt%252520Background%252520Removed.png'
-
 const defaultProduct = 'can'
 
 function LeftPane() {
-    const [addNewImages, init, stage, layer] = useStore((state) => [
-        state.addNewImages,
-        state.init,
-        state.stage,
-        state.layer,
-    ])
-    const toggleBgModal = useStore((state) => state.toggleBgModal)
+    const [addNewImages, init, stage, layer, image, setImage] = useStore(
+        (state) => [
+            state.addNewImages,
+            state.init,
+            state.stage,
+            state.layer,
+            state.image,
+            state.setImage,
+        ],
+    )
+
     // const [w, h] = useStore((state) => [state.width, state.height])
 
     const container = useRef<HTMLDivElement>(null)
@@ -166,7 +167,7 @@ function LeftPane() {
 
         stage.add(layer)
         setInitImage({
-            publicUrl: defaultInitImage,
+            publicUrl: image,
             layer,
         })
         let parent = container.current.parentElement
@@ -194,6 +195,7 @@ function LeftPane() {
             const { outputImageUrl } = await removeBackground({
                 dataUrl: imageWithBg,
             })
+            setImage(outputImageUrl)
             setInitImage({ layer, publicUrl: outputImageUrl })
         },
     })
@@ -218,7 +220,6 @@ function LeftPane() {
                     isLoading={isRemovingBg && 'Removing background...'}
                     onUpload={({ dataSrc }) => {
                         processImage(dataSrc)
-                        
                     }}
                 />
             </div>
@@ -433,7 +434,9 @@ function setInitImage({
     return new Promise<Konva.Image>((resolve) => {
         var imageObj = new Image()
         imageObj.onload = function (img) {
-            let adjust = imageObj.width / layer.width() / 0.5
+            let adjustW = imageObj.width / layer.width() / 0.5
+            let adjustH = imageObj.height / layer.height() / 0.5
+            let adjust = Math.max(adjustW, adjustH)
             // ratio should turn image heigt to half of canvas height
             // console.log(adjust)
             let width = imageObj.width / adjust
