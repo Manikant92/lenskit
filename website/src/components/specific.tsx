@@ -26,7 +26,7 @@ import { signIn, signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 
 import classNames from 'classnames'
-import { signupState } from '@app/utils/atoms'
+
 import { useAtom } from 'jotai'
 
 export function MyNavbar({}) {
@@ -58,7 +58,7 @@ export function MyNavbar({}) {
                             Sign Out
                         </Link>
                     ) : (
-                        <LoginLink />
+                        null
                     )}
                 </>
             }
@@ -175,21 +175,6 @@ function LogoIcon({ ...rest }) {
     )
 }
 
-export function LoginLink({}) {
-    const { status } = useSession()
-    const router = useRouter()
-    const [signupOpen, setSignupOpen] = useAtom(signupState)
-    if (status === 'authenticated') {
-        return null
-    }
-    return (
-        <div key={status} className='max-w-[14ch] text-left md:text-center'>
-            <Link data-name='login' onClick={() => setSignupOpen(true)}>
-                Login or Sign Up
-            </Link>
-        </div>
-    )
-}
 
 export function MyPricing({
     onCheckout,

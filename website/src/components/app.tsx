@@ -1,7 +1,7 @@
 import classNames from 'classnames'
 import BarLoader from 'react-spinners/HashLoader'
 import { Leva, useControls } from 'leva'
-import { LevaCustomTheme } from 'leva/src/styles'
+import { LevaCustomTheme } from 'leva/dist/declarations/src/styles'
 import { levaStore } from 'leva'
 import Zoom from 'react-medium-image-zoom'
 
@@ -200,7 +200,7 @@ function LeftPane() {
         }
     }, [aspectRatio])
 
-    const [w, h] = getImageSizeFromAspectRatio(aspectRatio)
+    const [w, h] = getImageSizeFromAspectRatio(aspectRatio as any)
     const { fn: processImage, isLoading: isRemovingBg } = useThrowingFn({
         async fn(imageWithBg) {
             const { outputImageUrl } = await removeBackground({
