@@ -4,7 +4,12 @@ import * as uuid from 'uuid'
 import { type Bucket, Storage, File } from '@google-cloud/storage'
 import { wrapMethod } from '@app/utils/sentry'
 
-import { getImageBuffer, getJwt, getOrgCredits, getOrgSubscriptions } from '@app/utils/ssr'
+import {
+    getImageBuffer,
+    getJwt,
+    getOrgCredits,
+    getOrgSubscriptions,
+} from '@app/utils/ssr'
 
 import cuid from 'cuid'
 import { prisma } from 'db'
@@ -169,7 +174,6 @@ export async function uploadFile({ filename }) {
 // https://storage.googleapis.com/generated-ai-uploads/9303ecda-205a-42cf-9845-c53d9d19c444CocaLatt%2520Background%2520Removed.png
 // https://generated-ai-uploads.storage.googleapis.com/9303ecda-205a-42cf-9845-c53d9d19c444CocaLatt%2520Background%2520Removed.png
 
-
 // https://kevinsimper.medium.com/google-cloud-storage-cors-not-working-after-enabling-14693412e404
 function getPublicUrl(file: File) {
     let publicUrl = new URL(
@@ -314,11 +318,14 @@ export async function generateImages({
 }
 
 export async function removeBackground({ dataUrl }) {
+    if (!dataUrl) {
+        throw new Error('no data url')
+    }
     const { req, res } = getContext()
     const { userId } = await getJwt({ req })
-    console.log(`Removing background`)
-    let imageBase64 = dataUrl.split(',')[1]
-    // imageBase64 = dataUrl
+    console.log(`Removing background from ${dataUrl.slice(0, 100)}`)
+    // let imageBase64 = dataUrl.split(',')[1]
+    let imageBase64 = dataUrl
     const { outputImageUrl } = await removeBackgroundWithReplicate({
         imageBase64,
     })

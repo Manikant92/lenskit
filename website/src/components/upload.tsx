@@ -98,7 +98,6 @@ export function LocalUploadButton({
                 console.log('No file selected')
                 return
             }
-            
 
             const dataSrc = await new Promise<string>((resolve) => {
                 const reader = new FileReader()
@@ -120,6 +119,7 @@ export function LocalUploadButton({
             await onUpload({ dataSrc })
         } finally {
             setLoading(false)
+            e.target.value = ''
         }
     }
     const inputRef = useRef<any>()
