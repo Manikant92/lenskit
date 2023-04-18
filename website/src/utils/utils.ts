@@ -85,14 +85,16 @@ export function objFromArr(arr: any[]) {
     return Object.fromEntries(arr.map((x) => [x, x]))
 }
 
-export function getImageSizeFromAspectRatio(aspectRatio) {
+export function getImageSizeFromAspectRatio(
+    aspectRatio: typeof aspectRatios[number],
+) {
     // all sizes must be divisible by 64
     if (aspectRatio === '1/1') {
         return [768, 768]
     }
-    if (aspectRatio === '4/3') {
-        return [768, 576]
-    }
+    // if (aspectRatio === '4/3') {
+    //     return [768, 576 + 32]
+    // }
     if (aspectRatio === '16/9') {
         return [896, 512]
     }
@@ -103,4 +105,4 @@ export function getImageSizeFromAspectRatio(aspectRatio) {
     return [768, 768]
 }
 
-export const aspectRatios = ['1/1', '4/3', '16/9', '9/16'] as const
+export const aspectRatios = ['1/1', '16/9', '9/16'] as const

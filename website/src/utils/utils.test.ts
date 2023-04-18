@@ -62,29 +62,32 @@ test(
             }
             console.log('generating templates for ', prompt)
             let i = 0
-            const request = buildGenerationRequest('stable-diffusion-xl-beta-v2-2-2', {
-                // type: 'text-to-image',
-                type: 'image-to-image-masking',
-                initImage: fs.readFileSync('./test-images/init_image.png'),
-                maskImage: fs.readFileSync('./test-images/mask_image.png'),
-                prompts: [
-                    {
-                        text: prompt.replace('[product]', prodName),
-                        weight: 1,
-                    },
-                    {
-                        text: 'texts, labels, tiny grid, small dots, graphic design, painting, worst, bad, ugly, person, guy',
-                        weight: -1,
-                    },
-                ],
-                // width: 512,
-                // height: 512,
-                samples,
-                cfgScale: 8,
+            const request = buildGenerationRequest(
+                'stable-diffusion-xl-beta-v2-2-2',
+                {
+                    // type: 'text-to-image',
+                    type: 'image-to-image-masking',
+                    initImage: fs.readFileSync('./test-images/init_image.png'),
+                    maskImage: fs.readFileSync('./test-images/mask_image.png'),
+                    prompts: [
+                        {
+                            text: prompt.replace('[product]', prodName),
+                            weight: 1,
+                        },
+                        {
+                            text: 'texts, labels, tiny grid, small dots, graphic design, painting, worst, bad, ugly, person, guy',
+                            weight: -1,
+                        },
+                    ],
+                    // width: 512,
+                    // height: 512,
+                    samples,
+                    cfgScale: 8,
 
-                steps: 30,
-                sampler: Generation.DiffusionSampler.SAMPLER_K_DPMPP_2M,
-            })
+                    steps: 30,
+                    sampler: Generation.DiffusionSampler.SAMPLER_K_DPMPP_2M,
+                },
+            )
             console.time('executeGenerationRequest')
             const res = await executeGenerationRequest(request)
             console.timeEnd('executeGenerationRequest')
@@ -128,6 +131,12 @@ test('getImageSizeFromAspectRatio', () => {
         }
         if (h % 64) {
             throw new Error('height not divisible by 64: ' + h)
+        }
+        if ((w / 2) % 64) {
+            throw new Error('width/2 not divisible by 64: ' + w)
+        }
+        if ((h / 2) % 64) {
+            throw new Error('height/2 not divisible by 64: ' + h)
         }
     }
 })
