@@ -39,10 +39,6 @@ import cuid from 'cuid'
 
 let debugMask = env.NEXT_PUBLIC_ENV !== 'production' && true
 
-const cheapMode = true
-
-const imageUrlAtom = atom<string>('')
-
 // https://github.com/pmndrs/leva/blob/main/packages/leva/src/styles/stitches.config.ts#L3
 const levaTheme: LevaCustomTheme = {
     colors: {
@@ -97,8 +93,8 @@ function LeftPane() {
 
     const { fn: generate, isLoading } = useThrowingFn({
         async fn() {
+            let ids = Array.from({ length: samples }, () => cuid())
             try {
-                let ids = Array.from({ length: samples }, () => cuid())
                 addNewImages(
                     ids.map((id) => {
                         return {
@@ -116,7 +112,17 @@ function LeftPane() {
                     prompt: prompt.replace('[product]', product),
                 })
                 addNewImages(results)
-            } finally {
+            } catch (e) {
+                addNewImages(
+                    ids.map((id) => {
+                        return {
+                            id,
+                            aspectRatio,
+                            isLoading: false,
+                        }
+                    }),
+                )
+                throw e
             }
         },
         errorMessage: 'Failed to generate image',
@@ -129,6 +135,7 @@ function LeftPane() {
         product: {
             value: defaultProduct,
         },
+
         samples: {
             value: 3,
             min: 1,
@@ -140,6 +147,10 @@ function LeftPane() {
         //     value: '',
         //     label: 'seed',
         // },
+        lowRes: {
+            label: 'low resolution',
+            value: false,
+        },
         aspectRatio: {
             value: '1/1',
             options: aspectRatios,
@@ -317,6 +328,7 @@ function stageToDataURL(_stage: Konva.Stage) {
     // const { width, height } = state
     // let width = 512
     // let height = 512 * aspectRatio
+    const lowRes = levaStore.getData()?.lowRes?.['value']
     let clone: Konva.Stage = _stage.clone()
     // let adjust = width / clone.width()
 
@@ -329,7 +341,7 @@ function stageToDataURL(_stage: Konva.Stage) {
         image.cache()
     })
     let url = clone.toDataURL({
-        pixelRatio: cheapMode ? 0.5 : 1,
+        pixelRatio: lowRes ? 0.5 : 1,
         // quality: 100,
         // width,
         // height,
