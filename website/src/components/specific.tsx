@@ -357,3 +357,4 @@ export function MyFaq({ className = '' }) {
         </PageContainer>
     )
 }
+
