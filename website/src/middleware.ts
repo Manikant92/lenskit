@@ -10,6 +10,7 @@ const NEXT_AUTH_COOKIE_NAME = isDev
 
 export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
     const base = req.nextUrl.origin
+    return
     // ignore next internal requests
     if (
         req.nextUrl.pathname.startsWith('/_next/') ||

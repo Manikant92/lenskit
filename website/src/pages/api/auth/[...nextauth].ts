@@ -15,6 +15,9 @@ import { AppError, KnownError } from '@app/utils/errors'
 import { Provider } from 'jotai'
 
 const adapter = PrismaAdapter(prisma)
+
+const useSecureCookies = env.NEXT_PUBLIC_ENV !== 'development'
+
 export const options: NextAuthOptions = {
     providers: [
         GoogleProvider({
@@ -95,7 +98,20 @@ export const options: NextAuthOptions = {
         strategy: 'jwt',
     },
     secret: env.SECRET,
-
+    cookies: {
+        sessionToken: {
+            name: `${
+                useSecureCookies ? '__Secure-' : ''
+            }next-auth.session-token`,
+            options: {
+                httpOnly: true,
+                sameSite: 'lax',
+                path: '/',
+                // domain: '.solutions-subdomain-auth.vercel.sh',
+                secure: useSecureCookies,
+            },
+        },
+    },
     callbacks: {
         async jwt({ token, account, isNewUser, user, profile }) {
             try {

@@ -562,7 +562,7 @@ function GenImage({
             )}
             {isLoading && (
                 <div className='flex items-center justify-center'>
-                    <BarLoader className='' />
+                    <BarLoader color='white' className='' />
                 </div>
             )}
             {src && (

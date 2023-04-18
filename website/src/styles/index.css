@@ -5,6 +5,4 @@
 @import 'beskar/styles/focus.css';
 @import './globals.css';
 
-iframe {
-    background-color: #111;
-}
+
