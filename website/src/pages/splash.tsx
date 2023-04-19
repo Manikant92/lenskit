@@ -11,7 +11,7 @@ export default function Page({}) {
 
 export function Splash() {
     return (
-        <div className='w-screen h-screen text-white flex flex-col items-center justify-center dark grow gray-800'>
+        <div className='w-screen h-[90vh] text-white flex flex-col items-center justify-center dark grow gray-800'>
             <Faded
                 animationName='fadeIn'
                 timingFunction='ease-in'
