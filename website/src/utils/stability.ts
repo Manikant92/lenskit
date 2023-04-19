@@ -163,10 +163,10 @@ export function buildGenerationRequest(
         request.setEngineId(engineID)
         request.setRequestedType(Generation.ArtifactType.ARTIFACT_IMAGE)
         let c = new Generation.ClassifierParameters()
-        
+
         request.setClassifier(c)
         // request.setConditioner(new Generation.ConditionerParameters())
-        
+
         const imageParams = new Generation.ImageParameters()
         if ('width' in params && !!params.width) {
             imageParams.setWidth(params.width)
@@ -180,7 +180,7 @@ export function buildGenerationRequest(
     }
 
     const imageParams = new Generation.ImageParameters()
-    
+
     if (params.type === 'text-to-image') {
         params.width && imageParams.setWidth(params.width)
         params.height && imageParams.setHeight(params.height)
@@ -198,6 +198,7 @@ export function buildGenerationRequest(
     // Omitting the seed or setting it to `0` will do the opposite.
     params.seed && imageParams.addSeed(params.seed)
 
+
     // Set the sampler (Default 'automatic')
     // Omitting this value enables 'automatic' mode where we choose the best sampler for you based
     // on the current payload. For example, since CLIP guidance only works on ancestral samplers,
@@ -206,7 +207,14 @@ export function buildGenerationRequest(
         const transformType = new Generation.TransformType()
         transformType.setDiffusion(params.sampler)
         imageParams.setTransform(transformType)
+    } else {
+        // const transformType = new Generation.TransformType()
+        // transformType.setDiffusion(Generation.DiffusionSampler.SAMPLER_K_DPMPP_2S_ANCESTRAL)
+        // imageParams.setTransform(transformType)
     }
+
+    // params.clipGuidancePreset = Generation.GuidancePreset.GUIDANCE_PRESET_FAST_GREEN
+
 
     // Set the Engine
     // At the time of writing, valid engines are:
@@ -283,8 +291,6 @@ export function buildGenerationRequest(
         request.addPrompt(createMaskImagePrompt(params.maskImage))
     }
 
-    
-
     return request
 }
 
@@ -296,10 +302,10 @@ function createInitImagePrompt(imageBinary: Buffer): Generation.Prompt {
     const initImageParameters = new Generation.PromptParameters()
     initImageParameters.setInit(true)
     initImageParameters.setWeight(2)
-    
+
     // initImageParameters.setWeight(50)
     const initImagePrompt = new Generation.Prompt()
-    
+
     initImagePrompt.setParameters(initImageParameters)
     initImagePrompt.setArtifact(initImageArtifact)
 

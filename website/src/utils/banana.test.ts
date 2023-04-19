@@ -93,39 +93,42 @@ test(
 test(
     'banana inpaint',
     async () => {
-        let modelKey = `779fe437-83b5-43c7-8578-e2b56f3f8822`
-        console.time(`banana`)
         const initImage = fs
             .readFileSync('./test-images/init_image.png')
             .toString('base64')
         const maskImage = fs
             .readFileSync('./test-images/mask_image.png')
             .toString('base64')
-
+            
+        let modelKey = `779fe437-83b5-43c7-8578-e2b56f3f8822`
+        console.time(`banana`)
         let [out]: any = await Promise.all([
             banana.run(env.BANANA_API_KEY, modelKey, {
                 prompt: 'product photography, extremely detailed, with grand canyon background',
                 negative_prompt:
                     'monochrome, lowres, bad anatomy, worst quality, low quality',
-                num_inference_steps: 10,
                 init_image: initImage,
                 mask_image: maskImage,
-                controlImage: initImage,
+                control_image: initImage,
+                guidance_scale: 7,
+                num_inference_steps: 10,
             }),
         ])
 
         console.timeEnd(`banana`)
-        if (out.error) {
-            console.log(out.error)
-        }
-        const { image_base64, canny_base64 } = out.modelOutputs[0].outputs
-        // console.log(out.modelOutputs)
 
+        console.log(JSON.stringify(out, null, 2).slice(0, 1000))
+        const data = out.modelOutputs[0]
+        // console.log(out.modelOutputs)
+        if (data.error) {
+            console.log(data.error)
+            return
+        }
+        const { images_base64 } = data
         fs.writeFileSync(
             path.resolve(`test-images/banana-inpaint-image.png`),
-            Buffer.from(image_base64, 'base64'),
+            Buffer.from(images_base64[0], 'base64'),
         )
-        
     },
     1000 * 1000,
 )

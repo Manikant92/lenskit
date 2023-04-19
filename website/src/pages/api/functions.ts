@@ -5,6 +5,8 @@ import { type Bucket, Storage, File } from '@google-cloud/storage'
 import { wrapMethod } from '@app/utils/sentry'
 
 import {
+    generateImagesWithBanana,
+    generateImagesWithStability,
     getImageBuffer,
     getJwt,
     getOrgCredits,
@@ -23,6 +25,7 @@ import {
     stabilityClient,
 } from '@app/utils/stability'
 import { removeBackgroundWithReplicate } from '@app/utils/replicate'
+import { mimeToExtension } from '@app/utils/utils'
 export const config = {
     rpc: true, //
     wrapMethod,
@@ -205,116 +208,53 @@ export async function generateImages({
     const initImage = await getImageBuffer(initImageUrl)
     const maskImage = await getImageBuffer(maskImageUrl)
 
-    const request = buildGenerationRequest('stable-diffusion-v1-5', {
-        // type: 'text-to-image',
-        type: 'image-to-image-masking',
+    const bucket = storage.bucket('generated-ai-uploads')
+    console.log(`generating images...`)
+    const resultImages = await generateImagesWithBanana({
         initImage,
         maskImage,
-
-        prompts: [
-            {
-                text: prompt,
-                weight: 1,
-            },
-            {
-                text: 'texts, labels, tiny grid, small dots, graphic design, painting, worst, bad, ugly, person, guy',
-                weight: -1,
-            },
-        ],
-        // width: 512,
-        // height: 512,
-        samples: samples,
-        cfgScale: 8,
-
-        steps: 30,
-        sampler: Generation.DiffusionSampler.SAMPLER_K_DPMPP_2M,
+        prompt,
+        samples,
     })
-    // console.time('executeGenerationRequest')
-    console.log('generating images')
-    const stream = stabilityClient.generate(request, myStabilityMetadata)
-    const bucket = storage.bucket('generated-ai-uploads')
 
-    let resultImages = await new Promise<GeneratedImage[]>(
-        (resolve, reject) => {
-            let uploadTasks: Promise<any>[] = []
-            let results: GeneratedImage[] = []
-            stream.on('data', async (data: Generation.Answer) => {
-                try {
-                    let list = data.getArtifactsList()
+    const uploaded = await Promise.all(
+        resultImages.map(async (x) => {
+            const { buffer, seed, contentType } = x
+            const fullName = encodeURIComponent(
+                prompt.replace(/\s/g, '-') +
+                    '-' +
+                    uuid.v4() +
+                    '.' +
+                    mimeToExtension[contentType] || 'png',
+            )
+            const file = bucket.file(fullName)
+            let size = imageSize(buffer)
+            // console.log(
+            //     'saving',
+            //     filename,
+            //     contentType,
+            //     JSON.stringify(size),
+            // )
 
-                    await Promise.all(
-                        list.map(async (artifact) => {
-                            const isImage = isImageArtifact(artifact)
-                            if (!isImage) {
-                                return
-                            }
-
-                            let buffer = Buffer.from(
-                                await artifact.getBinary_asU8(),
-                            )
-
-                            let contentType = await artifact.getMime()
-                            let filename = String(artifact.getSeed())
-                            // let prompt = String(artifact.getPrompt())
-                            const fullName = encodeURIComponent(
-                                uuid.v4() + '-' + filename,
-                            )
-                            const file = bucket.file(fullName)
-                            let size = imageSize(buffer)
-                            console.log(
-                                'saving',
-                                filename,
-                                contentType,
-                                JSON.stringify(size),
-                            )
-                            uploadTasks.push(
-                                file.save(buffer, {
-                                    contentType,
-                                    metadata: { contentType, prompt, userId },
-                                    gzip: true,
-                                    timeout: 1000 * 10,
-                                }),
-                            )
-                            let publicUrl = getPublicUrl(file)
-                            results.push({
-                                publicUrl,
-                                aspectRatio: `${size.width / 64}/${
-                                    size.height / 64
-                                }`,
-                                prompt,
-                                id: ids.shift(),
-                                seed: String(artifact.getSeed()),
-                            })
-                            // const file = bucket.file(fullName)
-                            // file.createResumableUpload({})
-                        }),
-                    )
-                    results.length &&
-                        console.log(
-                            'uploaded all result images',
-                            results.length,
-                        )
-                } catch (e) {
-                    reject(e)
-                }
-
-                // upload to gcp
-            })
-            stream.on('end', async () => {
-                console.log('stability stream ended')
-                await Promise.all(uploadTasks)
-                resolve(results)
+            await file.save(buffer, {
+                contentType,
+                metadata: { contentType, prompt, userId },
+                gzip: true,
+                timeout: 1000 * 10,
             })
 
-            stream.on('status', (status) => {
-                if (status.code === 0) return
-                reject(new Error(status.details))
-            })
-        },
+            let publicUrl = getPublicUrl(file)
+            return {
+                publicUrl,
+                aspectRatio: `${size.width / 64}/${size.height / 64}`,
+                prompt,
+                id: ids.shift(),
+                seed: String(seed),
+            }
+        }),
     )
-    // console.timeEnd('executeGenerationRequest')
-    console.log('generated images', JSON.stringify(resultImages, null, 2))
-    return resultImages
+    console.log('uploaded', uploaded)
+    return uploaded
 }
 
 export async function removeBackground({ dataUrl }) {

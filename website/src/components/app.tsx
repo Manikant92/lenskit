@@ -149,7 +149,7 @@ function LeftPane() {
         // },
         lowRes: {
             label: 'low resolution',
-            value: false,
+            value: true,
         },
         aspectRatio: {
             value: '1/1',
