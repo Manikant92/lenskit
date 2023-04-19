@@ -32,9 +32,7 @@ export default function Page({}) {
 function Splash() {
     return (
         <div className='w-screen h-screen text-white flex flex-col items-center justify-center dark  grow gray-800'>
-            <Faded duration={900}>
-                <BarLoader color='white' size={180} className='' />
-            </Faded>
+            <BarLoader color='white' size={180} className='' />
         </div>
     )
 }
