@@ -5,7 +5,7 @@
 import * as Sentry from '@sentry/nextjs'
 
 Sentry.init({
-    dsn: 'https://559f09ce0bde43bb921a66ca543b5c41@o4504578358771712.ingest.sentry.io/4504578359754752',
+    dsn: 'https://ed1eefbcedf7424ab070fed0f3d38d00@o4505039914795008.ingest.sentry.io/4505039915909120',
 
     tracesSampleRate: 0.1,
     // onFatalError: onUncaughtException,
