@@ -4,6 +4,7 @@ import { signIn, useSession } from 'next-auth/react'
 import dynamic from 'next/dynamic'
 import { useEffect, useState } from 'react'
 import BarLoader from 'react-spinners/HashLoader'
+import { Splash } from './splash'
 
 const App = dynamic(() => import('../components/app').then((x) => x.App), {
     ssr: false,
@@ -27,12 +28,4 @@ export default function Page({}) {
     // return <Splash />
 
     return <App />
-}
-
-function Splash() {
-    return (
-        <div className='w-screen h-screen text-white flex flex-col items-center justify-center dark  grow gray-800'>
-            <BarLoader color='white' size={180} className='' />
-        </div>
-    )
 }
