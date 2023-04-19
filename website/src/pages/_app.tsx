@@ -42,7 +42,10 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     // const forcedTheme = !isDashboard ? 'light' : undefined
 
     return (
-        <SessionProvider session={session}>
+        <SessionProvider
+            basePath={router.basePath || undefined}
+            session={session}
+        >
             <Script async src='https://cdn.splitbee.io/sb.js'></Script>
 
             <Script

@@ -851,7 +851,7 @@ packages:
       '@emotion/react': '>=10.0.35'
       react: '>=18'
     dependencies:
-      '@emotion/react': 11.10.5_ulhmhxukhxjgxaybrsjlob7ffu
+      '@emotion/react': 11.10.5_3stiutgnnbnfnf3uowm5cip22i
       react: 18.2.0
 
   /@chakra-ui/descendant/3.0.14_react@18.2.0:
@@ -1194,8 +1194,8 @@ packages:
       '@chakra-ui/react-env': 3.0.0_react@18.2.0
       '@chakra-ui/system': 2.5.5_dovxhg2tvkkxkdnqyoum6wzcxm
       '@chakra-ui/utils': 2.0.15
-      '@emotion/react': 11.10.5_ulhmhxukhxjgxaybrsjlob7ffu
-      '@emotion/styled': 11.10.5_qt7kojzfscjrelj6bz7wwgbfjq
+      '@emotion/react': 11.10.5_3stiutgnnbnfnf3uowm5cip22i
+      '@emotion/styled': 11.10.5_jrh5enlbqfbnumycmktdqgd6se
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
 
@@ -1625,8 +1625,8 @@ packages:
       '@chakra-ui/styled-system': 2.8.0
       '@chakra-ui/theme-utils': 2.0.15
       '@chakra-ui/utils': 2.0.15
-      '@emotion/react': 11.10.5_ulhmhxukhxjgxaybrsjlob7ffu
-      '@emotion/styled': 11.10.5_qt7kojzfscjrelj6bz7wwgbfjq
+      '@emotion/react': 11.10.5_3stiutgnnbnfnf3uowm5cip22i
+      '@emotion/styled': 11.10.5_jrh5enlbqfbnumycmktdqgd6se
       react: 18.2.0
       react-fast-compare: 3.2.1
 
@@ -1853,7 +1853,6 @@ packages:
       '@types/react': 18.0.27
       hoist-non-react-statics: 3.3.2
       react: 18.2.0
-    dev: true
 
   /@emotion/react/11.10.5_ulhmhxukhxjgxaybrsjlob7ffu:
     resolution: {integrity: sha512-TZs6235tCJ/7iF6/rvTaOH4oxQg2gMAcdHemjwLKIjKz4rRuYe1HJ2TQJKnAcRAfOUDdU8XoDadCe1rl72iv8A==}
@@ -1877,6 +1876,7 @@ packages:
       '@types/react': 18.0.9
       hoist-non-react-statics: 3.3.2
       react: 18.2.0
+    dev: false
 
   /@emotion/serialize/1.1.1:
     resolution: {integrity: sha512-Zl/0LFggN7+L1liljxXdsVSVlg6E/Z/olVWpfxUTxOAmi8NU7YoeWeLfi1RmnB2TATHoaWwIBRoL+FvAJiTUQA==}
@@ -1912,7 +1912,6 @@ packages:
       '@emotion/utils': 1.2.0
       '@types/react': 18.0.27
       react: 18.2.0
-    dev: true
 
   /@emotion/styled/11.10.5_qt7kojzfscjrelj6bz7wwgbfjq:
     resolution: {integrity: sha512-8EP6dD7dMkdku2foLoruPCNkRevzdcBaY6q0l0OsbyJK+x8D9HWjX27ARiSIKNF634hY9Zdoedh8bJCiva8yZw==}
@@ -1936,6 +1935,7 @@ packages:
       '@emotion/utils': 1.2.0
       '@types/react': 18.0.9
       react: 18.2.0
+    dev: false
 
   /@emotion/unitless/0.8.0:
     resolution: {integrity: sha512-VINS5vEYAscRl2ZUDiT3uMPlrFQupiKgHz5AA4bCH1miKBg4qtwkim1qPmJj/4WG6TreYMY111rEFsjupcOKHw==}
@@ -4272,7 +4272,7 @@ packages:
       debug: 4.3.4
       globby: 11.1.0
       is-glob: 4.0.3
-      semver: 7.3.8
+      semver: 7.5.0
       tsutils: 3.21.0
     transitivePeerDependencies:
       - supports-color
@@ -7641,7 +7641,7 @@ packages:
       jsdoc: 3.6.11
       minimist: 1.2.7
       protobufjs: 7.1.2
-      semver: 7.3.8
+      semver: 7.5.0
       tmp: 0.2.1
       uglify-js: 3.17.4
     dev: false
@@ -8168,20 +8168,12 @@ packages:
     resolution: {integrity: sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==}
     hasBin: true
 
-  /semver/7.3.8:
-    resolution: {integrity: sha512-NB1ctGL5rlHrPJtFDVIVzTyQylMLu9N9VICA6HSFJo8MCGVTMW6gfpicwKmmK/dAjTOrqu5l63JJOpDSrAis3A==}
-    engines: {node: '>=10'}
-    hasBin: true
-    dependencies:
-      lru-cache: 6.0.0
-
   /semver/7.5.0:
     resolution: {integrity: sha512-+XC0AD/R7Q2mPSRuy2Id0+CGTZ98+8f+KvwirxOKIEyid+XSx6HbC63p+O4IndTHuX5Z+JxQ0TghCkO5Cg/2HA==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
       lru-cache: 6.0.0
-    dev: false
 
   /seq-queue/0.0.5:
     resolution: {integrity: sha512-hr3Wtp/GZIc/6DAGPDcV4/9WoZhjrkXsi5B/07QgX8tsdc6ilr7BFM6PM6rbdAX1kFSDYeZGLipIZZKyQP0O5Q==}

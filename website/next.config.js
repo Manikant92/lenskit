@@ -16,7 +16,7 @@ const piped = pipe(withRpc, withSuperjson(), (c) =>
         org: 'tiktoktts',
         project: 'javascript',
         dryRun: process.env.NODE_ENV === 'development',
-        
+
         silent: true, //
     }),
 )
@@ -55,6 +55,7 @@ const config = {
         return config
     },
     // add rewrites for /blog
+    // basePath: '/tool',
     // async rewrites() {
     //     let url = 'https://mono.framer.media'
     //     return [
