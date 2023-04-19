@@ -11,7 +11,6 @@ import { DOMParser } from 'xmldom'
 
 const paths = [
     '/', //
-    '/tiktok',
 
     // '/comparisons/popsy',
     // '/comparisons/potion',
