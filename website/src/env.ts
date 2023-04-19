@@ -46,3 +46,5 @@ export const variantIdToCredits = {
     38951: 3000,
     38949: 1000,
 }
+
+
