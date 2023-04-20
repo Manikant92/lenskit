@@ -107,7 +107,7 @@ importers:
 
   website:
     specifiers:
-      '@banana-dev/banana-dev': ^4.0.0
+      '@banana-dev/banana-dev': github:remorses/banana-node-sdk#fix-errors
       '@chakra-ui/react': ^2.5.5
       '@emotion/react': ^11.9.3
       '@emotion/styled': ^11.9.3
@@ -190,7 +190,7 @@ importers:
       xmldom: ^0.6.0
       zustand: ^4.3.7
     dependencies:
-      '@banana-dev/banana-dev': 4.0.0_z6mbvpcafstorffbkik74lkrwq
+      '@banana-dev/banana-dev': github.com/remorses/banana-node-sdk/d4353e35cf5bd33a8e43b3ad4028b111b78e5bf3_undici@5.21.1
       '@chakra-ui/react': 2.5.5_tnwti2uc3wemlsden6lf4gso5e
       '@emotion/react': 11.10.5_ulhmhxukhxjgxaybrsjlob7ffu
       '@emotion/styled': 11.10.5_qt7kojzfscjrelj6bz7wwgbfjq
@@ -679,19 +679,6 @@ packages:
       to-fast-properties: 2.0.0
     dev: false
 
-  /@banana-dev/banana-dev/4.0.0_z6mbvpcafstorffbkik74lkrwq:
-    resolution: {integrity: sha512-DhVn2A6rZCdoJsP9DjM6vrbgaMHO6qiVI6HA8F6PlLwda68CW8pVeLrwDgvJ9oM8tn9UGgpwD2eQMQtI0SRmEA==}
-    dependencies:
-      axios: 0.21.4_debug@4.3.4
-      image-to-base64: 2.2.0_encoding@0.1.13
-      utf8: 3.0.0
-      uuid: 8.3.2
-      valid-url: 1.0.9
-    transitivePeerDependencies:
-      - debug
-      - encoding
-    dev: false
-
   /@chakra-ui/accordion/2.1.11_i6fhfa2wvtxv5b2jykryjj4lam:
     resolution: {integrity: sha512-mfVPmqETp9pyRDHJ33AdF19oHv/LyxVzQJtlxUByuvs8Cj9QQZ2LQLg5kejm+b3mj03A7A6yfbuo3RNaI4Bhsg==}
     peerDependencies:
@@ -851,7 +838,7 @@ packages:
       '@emotion/react': '>=10.0.35'
       react: '>=18'
     dependencies:
-      '@emotion/react': 11.10.5_3stiutgnnbnfnf3uowm5cip22i
+      '@emotion/react': 11.10.5_ulhmhxukhxjgxaybrsjlob7ffu
       react: 18.2.0
 
   /@chakra-ui/descendant/3.0.14_react@18.2.0:
@@ -1194,8 +1181,8 @@ packages:
       '@chakra-ui/react-env': 3.0.0_react@18.2.0
       '@chakra-ui/system': 2.5.5_dovxhg2tvkkxkdnqyoum6wzcxm
       '@chakra-ui/utils': 2.0.15
-      '@emotion/react': 11.10.5_3stiutgnnbnfnf3uowm5cip22i
-      '@emotion/styled': 11.10.5_jrh5enlbqfbnumycmktdqgd6se
+      '@emotion/react': 11.10.5_ulhmhxukhxjgxaybrsjlob7ffu
+      '@emotion/styled': 11.10.5_qt7kojzfscjrelj6bz7wwgbfjq
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
 
@@ -1625,8 +1612,8 @@ packages:
       '@chakra-ui/styled-system': 2.8.0
       '@chakra-ui/theme-utils': 2.0.15
       '@chakra-ui/utils': 2.0.15
-      '@emotion/react': 11.10.5_3stiutgnnbnfnf3uowm5cip22i
-      '@emotion/styled': 11.10.5_jrh5enlbqfbnumycmktdqgd6se
+      '@emotion/react': 11.10.5_ulhmhxukhxjgxaybrsjlob7ffu
+      '@emotion/styled': 11.10.5_qt7kojzfscjrelj6bz7wwgbfjq
       react: 18.2.0
       react-fast-compare: 3.2.1
 
@@ -1853,6 +1840,7 @@ packages:
       '@types/react': 18.0.27
       hoist-non-react-statics: 3.3.2
       react: 18.2.0
+    dev: true
 
   /@emotion/react/11.10.5_ulhmhxukhxjgxaybrsjlob7ffu:
     resolution: {integrity: sha512-TZs6235tCJ/7iF6/rvTaOH4oxQg2gMAcdHemjwLKIjKz4rRuYe1HJ2TQJKnAcRAfOUDdU8XoDadCe1rl72iv8A==}
@@ -1876,7 +1864,6 @@ packages:
       '@types/react': 18.0.9
       hoist-non-react-statics: 3.3.2
       react: 18.2.0
-    dev: false
 
   /@emotion/serialize/1.1.1:
     resolution: {integrity: sha512-Zl/0LFggN7+L1liljxXdsVSVlg6E/Z/olVWpfxUTxOAmi8NU7YoeWeLfi1RmnB2TATHoaWwIBRoL+FvAJiTUQA==}
@@ -1912,6 +1899,7 @@ packages:
       '@emotion/utils': 1.2.0
       '@types/react': 18.0.27
       react: 18.2.0
+    dev: true
 
   /@emotion/styled/11.10.5_qt7kojzfscjrelj6bz7wwgbfjq:
     resolution: {integrity: sha512-8EP6dD7dMkdku2foLoruPCNkRevzdcBaY6q0l0OsbyJK+x8D9HWjX27ARiSIKNF634hY9Zdoedh8bJCiva8yZw==}
@@ -1935,7 +1923,6 @@ packages:
       '@emotion/utils': 1.2.0
       '@types/react': 18.0.9
       react: 18.2.0
-    dev: false
 
   /@emotion/unitless/0.8.0:
     resolution: {integrity: sha512-VINS5vEYAscRl2ZUDiT3uMPlrFQupiKgHz5AA4bCH1miKBg4qtwkim1qPmJj/4WG6TreYMY111rEFsjupcOKHw==}
@@ -4744,14 +4731,6 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /axios/0.21.4_debug@4.3.4:
-    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
-    dependencies:
-      follow-redirects: 1.15.2_debug@4.3.4
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
   /axobject-query/3.1.1:
     resolution: {integrity: sha512-goKlv8DZrK9hUh975fnHzhNIO4jUnFCfv/dszV5VwUGDFjI6vQ2VwoyjYjYNEbBE8AH87TduWP5uyDR1D+Iteg==}
     dependencies:
@@ -5832,18 +5811,6 @@ packages:
     dependencies:
       tslib: 2.5.0
 
-  /follow-redirects/1.15.2_debug@4.3.4:
-    resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    dependencies:
-      debug: 4.3.4
-    dev: false
-
   /for-each/0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
     dependencies:
@@ -6272,14 +6239,6 @@ packages:
     hasBin: true
     dependencies:
       queue: 6.0.2
-    dev: false
-
-  /image-to-base64/2.2.0_encoding@0.1.13:
-    resolution: {integrity: sha512-Z+aMwm/91UOQqHhrz7Upre2ytKhWejZlWV/JxUTD1sT7GWWKFDJUEV5scVQKnkzSgPHFuQBUEWcanO+ma0PSVw==}
-    dependencies:
-      node-fetch: 2.6.8_encoding@0.1.13
-    transitivePeerDependencies:
-      - encoding
     dev: false
 
   /immediate/3.0.6:
@@ -7071,6 +7030,14 @@ packages:
     resolution: {integrity: sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
+
+  /native-fetch/4.0.2_undici@5.21.1:
+    resolution: {integrity: sha512-4QcVlKFtv2EYVS5MBgsGX5+NWKtbDbIECdUXDBGDMAZXq3Jkv9zf+y8iS7Ub8fEdga3GpYeazp9gauNqXHJOCg==}
+    peerDependencies:
+      undici: '*'
+    dependencies:
+      undici: 5.21.1
+    dev: false
 
   /next-auth/4.22.1_3tbpwx46tlrk4rci3doelizria:
     resolution: {integrity: sha512-NTR3f6W7/AWXKw8GSsgSyQcDW6jkslZLH8AiZa5PQ09w1kR8uHtR9rez/E9gAq/o17+p0JYHE8QjF3RoniiObA==}
@@ -8832,10 +8799,6 @@ packages:
       react: 18.2.0
     dev: false
 
-  /utf8/3.0.0:
-    resolution: {integrity: sha512-E8VjFIQ/TyQgp+TZfS6l8yp/xWppSAHzidGiRrqe4bK4XP9pTRyKFgGJpO3SN7zdX4DeomTrwaseCHovfpFcqQ==}
-    dev: false
-
   /util-deprecate/1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
     dev: false
@@ -8855,10 +8818,6 @@ packages:
 
   /v8n/1.5.1:
     resolution: {integrity: sha512-LdabyT4OffkyXFCe9UT+uMkxNBs5rcTVuZClvxQr08D5TUgo1OFKkoT65qYRCsiKBl/usHjpXvP4hHMzzDRj3A==}
-    dev: false
-
-  /valid-url/1.0.9:
-    resolution: {integrity: sha512-QQDsV8OnSf5Uc30CKSwG9lnhMPe6exHtTXLRYX8uMwKENy640pU+2BgBL0LRbDh/eYRahNCS7aewCx0wf3NYVA==}
     dev: false
 
   /vite-node/0.29.8_@types+node@18.15.11:
@@ -9209,4 +9168,16 @@ packages:
     transitivePeerDependencies:
       - encoding
       - supports-color
+    dev: false
+
+  github.com/remorses/banana-node-sdk/d4353e35cf5bd33a8e43b3ad4028b111b78e5bf3_undici@5.21.1:
+    resolution: {tarball: https://codeload.github.com/remorses/banana-node-sdk/tar.gz/d4353e35cf5bd33a8e43b3ad4028b111b78e5bf3}
+    id: github.com/remorses/banana-node-sdk/d4353e35cf5bd33a8e43b3ad4028b111b78e5bf3
+    name: '@banana-dev/banana-dev'
+    version: 4.1.0
+    dependencies:
+      native-fetch: 4.0.2_undici@5.21.1
+      uuid: 8.3.2
+    transitivePeerDependencies:
+      - undici
     dev: false

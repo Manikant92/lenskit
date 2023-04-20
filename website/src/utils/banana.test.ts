@@ -13,6 +13,7 @@ import {
 } from './stability'
 import { aspectRatios, getImageSizeFromAspectRatio } from './utils'
 import { initAndBind } from '@sentry/nextjs'
+import { bananaModelKey } from './ssr'
 
 test.skip(
     'banana webui',
@@ -100,10 +101,10 @@ test(
             .readFileSync('./test-images/mask_image.png')
             .toString('base64')
             
-        let modelKey = `3b721125-9e50-4007-bae3-e2a8d5a11882`
+        
         console.time(`banana`)
         let [out]: any = await Promise.all([
-            banana.run(env.BANANA_API_KEY, modelKey, {
+            banana.run(env.BANANA_API_KEY, bananaModelKey, {
                 prompt: 'product photography, extremely detailed, with grand canyon background',
                 negative_prompt:
                     'monochrome, lowres, bad anatomy, worst quality, low quality',

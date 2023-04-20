@@ -1,5 +1,5 @@
 import { FREE_CREDITS, env } from '@app/env'
-import * as banana from '@banana-dev/banana-dev'
+import * as banana from '@banana-dev/banana-dev/index'
 
 import { prisma } from 'db'
 import { JWT, getToken } from 'next-auth/jwt'
@@ -173,13 +173,12 @@ export async function upscaleWithStability({
                 buffer,
                 contentType,
                 seed: String(artifact.getSeed()),
-                
             }
         }),
     )
     return resultImages
 }
-
+export let bananaModelKey = `779fe437-83b5-43c7-8578-e2b56f3f8822`
 export async function generateImagesWithBanana({
     initImage,
     maskImage,
@@ -191,38 +190,42 @@ export async function generateImagesWithBanana({
     prompt: string
     samples: number
 }) {
-    let modelKey = `779fe437-83b5-43c7-8578-e2b56f3f8822`
-    let id = Math.random().toString(36).substring(7)
-    console.time(`banana ${id}`)
-    let [out]: any = await Promise.all([
-        banana.run(env.BANANA_API_KEY, modelKey, {
-            prompt,
-            negative_prompt: negativePrompt,
-            init_image: initImage.toString('base64'),
-            mask_image: maskImage.toString('base64'),
-            control_image: initImage.toString('base64'),
-            guidance_scale: 7,
-            num_inference_steps: 10,
-            num_images_per_prompt: samples,
-            controlnet_conditioning_scale: 0.6,
-        }),
-    ])
+    try {
+        let id = Math.random().toString(36).substring(7)
+        console.time(`banana ${id}`)
+        let [out]: any = await Promise.all([
+            banana.run(env.BANANA_API_KEY, bananaModelKey, {
+                prompt,
+                negative_prompt: negativePrompt,
+                init_image: initImage.toString('base64'),
+                mask_image: maskImage.toString('base64'),
+                control_image: initImage.toString('base64'),
+                guidance_scale: 7,
+                num_inference_steps: 10,
+                num_images_per_prompt: samples,
+                controlnet_conditioning_scale: 0.6,
+            }),
+        ])
 
-    console.timeEnd(`banana ${id}`)
+        console.timeEnd(`banana ${id}`)
 
-    console.log(JSON.stringify(out, null, 2).slice(0, 1000))
-    const data = out.modelOutputs[0]
-    // console.log(out.modelOutputs)
-    if (data.error) {
-        throw new AppError(data.error)
-    }
-    const { images_base64 } = data
-    return images_base64.map((x) => {
-        const buffer = Buffer.from(x, 'base64')
-        return {
-            buffer,
-            contentType: 'image/png',
-            seed: Math.random().toString(36),
+        console.log(JSON.stringify(out, null, 2).slice(0, 1000))
+        const data = out.modelOutputs[0]
+        // console.log(out.modelOutputs)
+        if (data.error) {
+            throw new AppError(data.error)
         }
-    })
+        const { images_base64 } = data
+        return images_base64.map((x) => {
+            const buffer = Buffer.from(x, 'base64')
+            return {
+                buffer,
+                contentType: 'image/png',
+                seed: Math.random().toString(36),
+            }
+        })
+    } catch (e) {
+        // console.log(e?.jsonOutput, e)
+        throw e
+    }
 }

@@ -36,7 +36,7 @@ const config = {
         externalDir: true,
         outputFileTracingRoot: path.join(__dirname, '../'),
     },
-    transpilePackages: ['beskar'],
+    transpilePackages: ['beskar', '@banana-dev/banana-dev'],
     swcMinify: true,
     eslint: {
         // Warning: This allows production builds to successfully complete even if

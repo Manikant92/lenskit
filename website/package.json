@@ -16,7 +16,7 @@
         "lint": "eslint src --fix --color"
     },
     "dependencies": {
-        "@banana-dev/banana-dev": "^4.0.0",
+        "@banana-dev/banana-dev": "github:remorses/banana-node-sdk#fix-errors",
         "@chakra-ui/react": "^2.5.5",
         "@emotion/react": "^11.9.3",
         "@emotion/styled": "^11.9.3",
