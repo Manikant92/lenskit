@@ -11,6 +11,7 @@ import {
     getModels,
 } from './stability'
 import { aspectRatios, getImageSizeFromAspectRatio } from './utils'
+import { generateImagesWithStability } from './ssr'
 
 test(
     'make template images',
@@ -62,50 +63,31 @@ test(
             }
             console.log('generating templates for ', prompt)
             let i = 0
-            const request = buildGenerationRequest(
-                'stable-diffusion-xl-beta-v2-2-2',
-                {
-                    // type: 'text-to-image',
-                    type: 'image-to-image-masking',
-                    initImage: fs.readFileSync('./test-images/init_image.png'),
-                    maskImage: fs.readFileSync('./test-images/mask_image.png'),
-                    prompts: [
-                        {
-                            text: prompt.replace('[product]', prodName),
-                            weight: 1,
-                        },
-                        {
-                            text: 'texts, labels, tiny grid, small dots, graphic design, painting, worst, bad, ugly, person, guy',
-                            weight: -1,
-                        },
-                    ],
-                    // width: 512,
-                    // height: 512,
-                    samples,
-                    cfgScale: 8,
 
-                    steps: 30,
-                    sampler: Generation.DiffusionSampler.SAMPLER_K_DPMPP_2M,
-                },
-            )
             console.time('executeGenerationRequest')
-            const res = await executeGenerationRequest(request)
+            const initImage = fs.readFileSync('./test-images/init_image.png')
+            const maskImage = fs.readFileSync('./test-images/mask_image.png')
+            const res = await generateImagesWithStability({
+                prompt,
+                samples,
+                initImage,
+                maskImage,
+            })
             console.timeEnd('executeGenerationRequest')
 
             // console.log(res)
 
-            for (let art of res.imageArtifacts) {
+            for (let art of res) {
                 i += 1
-                console.log(art.getMime())
 
-                let buff = Buffer.from(await art.getBinary_asU8())
-                let seed = art.getSeed()
+                const { buffer, seed, contentType } = art
+
                 let p = path.resolve(
                     'public/templates',
                     '0-' + name + '-' + i + '-' + seed + '.png',
                 )
                 fs.mkdirSync(path.dirname(p), { recursive: true })
-                fs.writeFileSync(p, buff)
+                fs.writeFileSync(p, buffer)
                 // templatePrompts[index].path =
                 //     '/' + path.relative(path.resolve('public/'), p)
             }
