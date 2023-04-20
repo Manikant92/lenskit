@@ -11,6 +11,7 @@ import {
     getJwt,
     getOrgCredits,
     getOrgSubscriptions,
+    upscaleWithStability,
 } from '@app/utils/ssr'
 
 import cuid from 'cuid'
@@ -28,6 +29,13 @@ import { removeBackgroundWithReplicate } from '@app/utils/replicate'
 import { mimeToExtension } from '@app/utils/utils'
 export const config = {
     rpc: true, //
+
+    api: {
+        bodyParser: {
+            sizeLimit: '4mb', // Set desired value here
+        },
+    },
+
     wrapMethod,
 }
 
@@ -234,12 +242,6 @@ export async function generateImages({
             )
             const file = bucket.file(fullName)
             let size = imageSize(buffer)
-            // console.log(
-            //     'saving',
-            //     filename,
-            //     contentType,
-            //     JSON.stringify(size),
-            // )
 
             await file.save(buffer, {
                 contentType,
@@ -275,4 +277,32 @@ export async function removeBackground({ dataUrl }) {
         imageBase64,
     })
     return { outputImageUrl }
+}
+
+export async function upscaleImage({ dataUrl }) {
+    try {
+        if (!dataUrl) {
+            throw new Error('no data url')
+        }
+        const { req, res } = getContext()
+        const { userId } = await getJwt({ req })
+        console.log(`Upscaling ${dataUrl.slice(0, 100)}...`)
+        // let imageBase64 = dataUrl.split(',')[1]
+        let imageBuffer = await getImageBuffer(dataUrl)
+        const images = await upscaleWithStability({
+            initImage: imageBuffer,
+        })
+        const image = images[0]
+        if (!image) {
+            throw new Error('no upscaled image result')
+        }
+        const { buffer, contentType } = image
+        const outputImageUrl = `data:${contentType};base64,${buffer.toString(
+            'base64',
+        )}`
+        return { outputImageUrl }
+    } catch (e) {
+        console.error(e)
+        throw e
+    }
 }

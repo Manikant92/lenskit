@@ -11,6 +11,7 @@ import {
     myStabilityMetadata,
     isImageArtifact,
     Generation,
+    executeGenerationRequest,
 } from './stability'
 
 export async function getJwt({ req }: { req }): Promise<JWT> {
@@ -99,6 +100,7 @@ type GeneratedImageData = {
     buffer: Buffer
     contentType: string
     seed: string
+    // dataUrl?: string
 }
 const negativePrompt =
     'texts, labels, tiny grid, small dots, graphic design, painting, worst, bad, ugly, person, guy'
@@ -134,56 +136,46 @@ export async function generateImagesWithStability({
     })
     // console.time('executeGenerationRequest')
     console.log('generating images')
-    const stream = stabilityClient.generate(request, myStabilityMetadata)
-    let resultImages = await new Promise<GeneratedImageData[]>(
-        (resolve, reject) => {
-            let uploadTasks: Promise<any>[] = []
-            let results: GeneratedImageData[] = []
-            stream.on('data', async (data: Generation.Answer) => {
-                try {
-                    let list = data.getArtifactsList()
 
-                    await Promise.all(
-                        list.map(async (artifact) => {
-                            const isImage = isImageArtifact(artifact)
-                            if (!isImage) {
-                                return
-                            }
+    let arts = await executeGenerationRequest(request)
+    const resultImages: GeneratedImageData[] = await Promise.all(
+        arts.imageArtifacts.map(async (artifact) => {
+            let buffer = Buffer.from(await artifact.getBinary_asU8())
 
-                            let buffer = Buffer.from(
-                                await artifact.getBinary_asU8(),
-                            )
+            let contentType = await artifact.getMime()
+            return {
+                buffer,
+                contentType,
+                seed: String(artifact.getSeed()),
+            }
+        }),
+    )
+    return resultImages
+}
 
-                            let contentType = await artifact.getMime()
+export async function upscaleWithStability({
+    initImage,
+}: {
+    initImage: Buffer
+}) {
+    const request = buildGenerationRequest('esrgan-v1-x2plus', {
+        type: 'upscaling',
+        upscaler: Generation.Upscaler.UPSCALER_ESRGAN,
+        initImage,
+    })
+    let arts = await executeGenerationRequest(request)
+    const resultImages: GeneratedImageData[] = await Promise.all(
+        arts.imageArtifacts.map(async (artifact) => {
+            let buffer = Buffer.from(await artifact.getBinary_asU8())
 
-                            results.push({
-                                buffer,
-                                contentType,
-                                seed: String(artifact.getSeed()),
-                            })
-                            // let prompt = String(artifact.getPrompt())
-
-                            // const file = bucket.file(fullName)
-                            // file.createResumableUpload({})
-                        }),
-                    )
-                } catch (e) {
-                    reject(e)
-                }
-
-                // upload to gcp
-            })
-            stream.on('end', async () => {
-                console.log('stability stream ended')
-                await Promise.all(uploadTasks)
-                resolve(results)
-            })
-
-            stream.on('status', (status) => {
-                if (status.code === 0) return
-                reject(new Error(status.details))
-            })
-        },
+            let contentType = await artifact.getMime()
+            return {
+                buffer,
+                contentType,
+                seed: String(artifact.getSeed()),
+                
+            }
+        }),
     )
     return resultImages
 }

@@ -3,7 +3,7 @@ import BarLoader from 'react-spinners/HashLoader'
 import { Leva, useControls } from 'leva'
 import { LevaCustomTheme } from 'leva/dist/declarations/src/styles'
 import { levaStore } from 'leva'
-import Zoom from 'react-medium-image-zoom'
+import { Controlled as Zoom } from 'react-medium-image-zoom'
 
 import { Modal } from 'beskar/landing'
 import templateImages from '@app/../public/templates.json'
@@ -26,11 +26,17 @@ import { LocalUploadButton, UploadButton } from './upload'
 import { atom, useAtom } from 'jotai'
 import { Button, Input, useThrowingFn } from 'beskar/landing'
 import { env } from '@app/env'
-import { DownloadIcon, LightningBoltIcon } from '@heroicons/react/solid'
+import {
+    StarIcon as UpscaleIcon,
+    DownloadIcon,
+    LightningBoltIcon,
+    ZoomInIcon,
+} from '@heroicons/react/solid'
 import {
     GeneratedImage,
     generateImages,
     removeBackground,
+    upscaleImage,
 } from '@app/pages/api/functions'
 import { useStore } from '@app/utils/store'
 import { ChakraProvider, IconButton, Select } from '@chakra-ui/react'
@@ -109,7 +115,7 @@ function LeftPane() {
                     ids,
                     initImageUrl: getInitFromCanvas(stage),
                     maskImageUrl: getMaskFromCanvas(stage),
-                    provider,
+                    provider: provider as any,
                     prompt: prompt.replace('[product]', product),
                 })
                 addNewImages(results)
@@ -521,12 +527,18 @@ function Images({}) {
                                 ?.replace(/ /g, '-')
                                 .replace(/,/g, '')
                                 .replace(/./g, '')}-${image.seed}.png`}
+                            id={image.id}
+                            prompt={image.prompt}
+                            seed={image.seed}
                             src={image.publicUrl}
                         />
                     )
                 })}
                 {Array.from({ length: 3 }).map((_, i) => (
                     <GenImage
+                        id={i}
+                        prompt={'placeholder'}
+                        seed={i}
                         // isLoading
                         aspectRatio={'1/1'}
                         key={'placeholder' + i}
@@ -542,8 +554,33 @@ function GenImage({
     filename = '',
     isLoading = false,
     src = '',
+    id,
+    seed,
+    prompt,
 }) {
+    const addNewImages = useStore((store) => store.addNewImages)
     let image = useRef<HTMLImageElement>(null)
+    const { isLoading: isUpscaling, fn: upscale } = useThrowingFn({
+        async fn() {
+            const { outputImageUrl } = await upscaleImage({
+                dataUrl: src,
+            })
+            console.log('outputImageUrl', outputImageUrl)
+            addNewImages([
+                {
+                    aspectRatio,
+                    id,
+                    isLoading,
+                    prompt,
+                    publicUrl: outputImageUrl,
+                    seed,
+                },
+            ])
+            setIsZoomed(true)
+        },
+        successMessage: 'Upscaled image',
+    })
+    const [isZoomed, setIsZoomed] = useState(false)
     //  aspectRatio = '1/1'
     return (
         <div
@@ -556,7 +593,11 @@ function GenImage({
             )}
         >
             {src && (
-                <Zoom wrapElement='div'>
+                <Zoom
+                    onZoomChange={(z) => setIsZoomed(z)}
+                    isZoomed={isZoomed}
+                    wrapElement='div'
+                >
                     <img
                         ref={image}
                         src={src}
@@ -573,35 +614,55 @@ function GenImage({
                     <BarLoader color='white' className='' />
                 </div>
             )}
-            {src && (
-                <Button
-                    onClick={async () => {
-                        // download attribute doesn't work with cross origin images
-                        // https://javascript.plainenglish.io/how-to-download-files-with-javascript-996b8a025d3f
-                        fetch(src, {
-                            method: 'get',
-                            // mode: 'no-cors',
-                            referrerPolicy: 'no-referrer',
-                        })
-                            .then((res) => res.blob())
-                            .then((res) => {
-                                const aElement = document.createElement('a')
-                                aElement.setAttribute('download', filename)
-                                const href = URL.createObjectURL(res)
-                                aElement.href = href
-                                aElement.setAttribute('target', '_blank')
-                                aElement.click()
-                                URL.revokeObjectURL(href)
+            <div className='flex items-center gap-3 absolute right-3 bottom-3 '>
+                {src && (
+                    <ImageButton
+                        isLoading={isUpscaling}
+                        icon={<div className=''>Upscale</div>}
+                        onClick={() => {
+                            upscale()
+                        }}
+                    />
+                )}
+                {src && (
+                    <ImageButton
+                        icon={<DownloadIcon className=' text-white w-5 ' />}
+                        onClick={async () => {
+                            // download attribute doesn't work with cross origin images
+                            // https://javascript.plainenglish.io/how-to-download-files-with-javascript-996b8a025d3f
+                            fetch(src, {
+                                method: 'get',
+                                // mode: 'no-cors',
+                                referrerPolicy: 'no-referrer',
                             })
-                    }}
-                    bg='gray.800'
-                    className='shadow-xl gap-2 items-center text-sm hover:scale-105 block !absolute right-3 bottom-3 opacity-0 transition-all duration-200 group-hover:opacity-100'
-                >
-                    <DownloadIcon className=' text-white w-5 ' />
-                    {/* <span className=''>download</span> */}
-                </Button>
-            )}
+                                .then((res) => res.blob())
+                                .then((res) => {
+                                    const aElement = document.createElement('a')
+                                    aElement.setAttribute('download', filename)
+                                    const href = URL.createObjectURL(res)
+                                    aElement.href = href
+                                    aElement.setAttribute('target', '_blank')
+                                    aElement.click()
+                                    URL.revokeObjectURL(href)
+                                })
+                        }}
+                    />
+                )}
+            </div>
         </div>
+    )
+}
+
+function ImageButton({ icon, ...rest }) {
+    return (
+        <Button
+            bg='gray.800'
+            className='shadow-xl text-white gap-2 items-center text-sm hover:scale-105 block opacity-0 transition-all duration-200 group-hover:opacity-100'
+            {...rest}
+        >
+            {icon}
+            {/* <span className=''>download</span> */}
+        </Button>
     )
 }
 

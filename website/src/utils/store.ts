@@ -34,12 +34,18 @@ export const useStore = create<Store>()((set) => ({
     // },
     addNewImages(images) {
         set((state) => {
-            let ids = new Set(images.map((i) => i.id))
+            let oldIds = new Set(state.resultImages.map((i) => i.id))
             return {
                 ...state,
                 resultImages: [
-                    ...images,
-                    ...state.resultImages.filter((i) => !ids.has(i.id)),
+                    ...images.filter((i) => !oldIds.has(i.id)),
+                    ...state.resultImages.map((old) => {
+                        let newImg = images.find((i) => i.id === old.id)
+                        if (newImg) {
+                            return newImg
+                        }
+                        return old
+                    }),
                 ],
             }
         })
