@@ -162,7 +162,7 @@ function LeftPane() {
             provider: {
                 label: 'provider',
                 options: ['Controlnet', 'Stability AI'],
-                value: 'Controlnet',
+                value: 'Stability AI',
             },
             aspectRatio: {
                 value: '1/1',
