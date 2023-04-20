@@ -222,8 +222,7 @@ export async function generateImagesWithBanana({
     const data = out.modelOutputs[0]
     // console.log(out.modelOutputs)
     if (data.error) {
-        console.log(data.error)
-        return
+        throw new AppError(data.error)
     }
     const { images_base64 } = data
     return images_base64.map((x) => {
