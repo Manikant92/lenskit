@@ -100,7 +100,7 @@ test(
             .readFileSync('./test-images/mask_image.png')
             .toString('base64')
             
-        let modelKey = `779fe437-83b5-43c7-8578-e2b56f3f8822`
+        let modelKey = `3b721125-9e50-4007-bae3-e2a8d5a11882`
         console.time(`banana`)
         let [out]: any = await Promise.all([
             banana.run(env.BANANA_API_KEY, modelKey, {
