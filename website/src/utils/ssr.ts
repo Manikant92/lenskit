@@ -110,7 +110,7 @@ export async function generateImagesWithStability({
     prompt,
     samples,
 }) {
-    const request = buildGenerationRequest('stable-diffusion-v1-5', {
+    const request = buildGenerationRequest('stable-inpainting-v1-0', {
         // type: 'text-to-image',
         type: 'image-to-image-masking',
         initImage,

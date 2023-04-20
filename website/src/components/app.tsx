@@ -173,10 +173,8 @@ function LeftPane() {
     let wantedH = 440
     useEffect(() => {
         console.log('konva')
-        let width = container.current?.clientWidth || w
-        let height = container.current?.clientHeight || h
-        width = w
-        height = h
+        let width = w
+        let height = h
 
         let stage = new Konva.Stage({
             container: container.current,
@@ -185,9 +183,8 @@ function LeftPane() {
         })
 
         let layer = new Konva.Layer({ height, width })
-        layer.canvas.context.imageSmoothingEnabled = true
-        layer.canvas.context['imageSmoothingQuality'] = 'high'
 
+        enableSmoothing(layer)
         init({ stage, layer })
 
         stage.add(layer)
@@ -344,6 +341,7 @@ function stageToDataURL(_stage: Konva.Stage) {
     // let height = 512 * aspectRatio
     const lowRes = levaStore.getData()?.lowRes?.['value']
     let clone: Konva.Stage = _stage.clone()
+    enableSmoothing(clone.findOne('Layer'))
     // let adjust = width / clone.width()
 
     // clone.size({ height, width })
@@ -359,6 +357,8 @@ function stageToDataURL(_stage: Konva.Stage) {
         // quality: 100,
         // width,
         // height,
+        quality: 1,
+
         mimeType: 'image/png',
     })
     clone.destroy()
@@ -408,7 +408,7 @@ function getMaskFromCanvas(_stage: Konva.Stage) {
     // image.threshold(0.2)
     // image = image.cache()
     // image.brightness(500)
-    image.blurRadius(1)
+    image.blurRadius(30)
     let url = stageToDataURL(cloned)
     cloned.destroy()
 
@@ -417,9 +417,10 @@ function getMaskFromCanvas(_stage: Konva.Stage) {
 
 function getInitFromCanvas(_stage: Konva.Stage) {
     // stage = useStore.getState().stage
-    let cloned: Konva.Stage = _stage.clone()
+    let clone: Konva.Stage = _stage.clone()
+    enableSmoothing(clone.findOne('Layer'))
     // cloned.cache()
-    let image = cloned.findOne((node: Konva.Image) => {
+    let image = clone.findOne((node: Konva.Image) => {
         return node.id() === 'init'
     })
 
@@ -427,14 +428,14 @@ function getInitFromCanvas(_stage: Konva.Stage) {
         alert('no image')
         return
     }
-    var layer: Konva.Layer = cloned.findOne('Layer')
+    var layer: Konva.Layer = clone.findOne('Layer')
 
     // another solution is to use rectangle shape
     var background = new Konva.Rect({
         x: 0,
         y: 0,
-        width: cloned.width(),
-        height: cloned.height(),
+        width: clone.width(),
+        height: clone.height(),
         fill: '#fff',
         listening: false,
     })
@@ -443,8 +444,8 @@ function getInitFromCanvas(_stage: Konva.Stage) {
     // console.log(image.id())
     image = image.cache()
 
-    let url = stageToDataURL(cloned)
-    cloned.destroy()
+    let url = stageToDataURL(clone)
+    clone.destroy()
 
     return url
 }
@@ -768,3 +769,8 @@ export function App({}) {
 //         />
 //     )
 // }
+
+function enableSmoothing(layer) {
+    layer.canvas.context._context.imageSmoothingEnabled = true
+    layer.canvas.context._context['imageSmoothingQuality'] = 'high'
+}
