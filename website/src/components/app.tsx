@@ -109,6 +109,7 @@ function LeftPane() {
                     ids,
                     initImageUrl: getInitFromCanvas(stage),
                     maskImageUrl: getMaskFromCanvas(stage),
+                    provider,
                     prompt: prompt.replace('[product]', product),
                 })
                 addNewImages(results)
@@ -131,31 +132,38 @@ function LeftPane() {
     const [prompt, setPrompt] = useState(
         templateImages[selectedTemplateIndex]?.prompt || '',
     )
-    const [{ samples, product, aspectRatio }, set] = useControls(() => ({
-        product: {
-            value: defaultProduct,
-        },
+    const [{ samples, product, aspectRatio, provider }, set] = useControls(
+        () => ({
+            product: {
+                value: defaultProduct,
+            },
 
-        samples: {
-            value: 3,
-            min: 1,
-            max: 10,
-            step: 1,
-            label: 'image count',
-        },
-        // seed: {
-        //     value: '',
-        //     label: 'seed',
-        // },
-        lowRes: {
-            label: 'low resolution',
-            value: true,
-        },
-        aspectRatio: {
-            value: '1/1',
-            options: aspectRatios,
-        },
-    }))
+            samples: {
+                value: 3,
+                min: 1,
+                max: 10,
+                step: 1,
+                label: 'image count',
+            },
+            // seed: {
+            //     value: '',
+            //     label: 'seed',
+            // },
+            lowRes: {
+                label: 'low resolution',
+                value: true,
+            },
+            provider: {
+                label: 'provider',
+                options: ['Controlnet', 'Stability AI'],
+                value: 'Controlnet',
+            },
+            aspectRatio: {
+                value: '1/1',
+                options: aspectRatios,
+            },
+        }),
+    )
     let wantedH = 440
     useEffect(() => {
         console.log('konva')

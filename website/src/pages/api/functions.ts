@@ -200,6 +200,7 @@ export async function generateImages({
     initImageUrl,
     maskImageUrl,
     prompt,
+    provider = 'Controlnet' as 'Controlnet' | 'Stability AI',
 }) {
     const { req, res } = getContext()
     const { userId } = await getJwt({ req })
@@ -210,7 +211,11 @@ export async function generateImages({
 
     const bucket = storage.bucket('generated-ai-uploads')
     console.log(`generating images...`)
-    const resultImages = await generateImagesWithBanana({
+    let generator =
+        provider === 'Controlnet'
+            ? generateImagesWithBanana
+            : generateImagesWithStability
+    const resultImages = await generator({
         initImage,
         maskImage,
         prompt,
