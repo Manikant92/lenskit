@@ -1,4 +1,7 @@
 import { DOWNLOADS_COUNT_COOKIE, FREE_CREDITS, env } from '@app/env'
+import { Ratelimit } from '@upstash/ratelimit' // for deno: see above
+import { Redis } from '@upstash/redis'
+import { KnownError } from '@app/utils/errors'
 import { imageSize } from 'image-size'
 import * as uuid from 'uuid'
 import { type Bucket, Storage, File } from '@google-cloud/storage'
@@ -202,6 +205,21 @@ export type GeneratedImage = {
     id: string
 }
 
+
+
+const redis = new Redis({
+    url: 'https://us1-first-marmoset-38519.upstash.io',
+    token: env.UPSTASH_TOKEN
+})
+
+const ratelimit = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(20, '10 s'),
+    analytics: true,
+
+    prefix: '@upstash/ratelimit',
+})
+
 export async function generateImages({
     samples = 1,
     ids,
@@ -212,6 +230,11 @@ export async function generateImages({
 }) {
     const { req, res } = getContext()
     const { userId } = await getJwt({ req })
+    const { success } = await ratelimit.limit(userId)
+
+    if (!success) {
+        throw new KnownError('Too many requests, please try again later')
+    }
     // get image buffer from image data url
     console.log(`downloading images...`)
     const initImage = await getImageBuffer(initImageUrl)

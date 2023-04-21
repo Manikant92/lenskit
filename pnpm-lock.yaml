@@ -130,6 +130,8 @@ importers:
       '@types/react': 18.0.9
       '@types/uuid': ^9.0.1
       '@types/xmldom': ^0.1.31
+      '@upstash/ratelimit': ^0.4.2
+      '@upstash/redis': ^1.20.4
       async-sema: ^3.1.1
       autoprefixer: ^10.4.7
       babel-loader: ^8.2.5
@@ -190,7 +192,7 @@ importers:
       xmldom: ^0.6.0
       zustand: ^4.3.7
     dependencies:
-      '@banana-dev/banana-dev': github.com/remorses/banana-node-sdk/d4353e35cf5bd33a8e43b3ad4028b111b78e5bf3_undici@5.21.1
+      '@banana-dev/banana-dev': github.com/remorses/banana-node-sdk/2a1d532b99b140872f8f6b52eb7d7a2cdef4838c_undici@5.21.1
       '@chakra-ui/react': 2.5.5_tnwti2uc3wemlsden6lf4gso5e
       '@emotion/react': 11.10.5_ulhmhxukhxjgxaybrsjlob7ffu
       '@emotion/styled': 11.10.5_qt7kojzfscjrelj6bz7wwgbfjq
@@ -209,6 +211,8 @@ importers:
       '@types/js-cookie': 3.0.3
       '@types/uuid': 9.0.1
       '@types/xmldom': 0.1.31
+      '@upstash/ratelimit': 0.4.2_jpece44psxpj2wbxaplx2blrse
+      '@upstash/redis': 1.20.4_encoding@0.1.13
       async-sema: 3.1.1
       babel-loader: 8.3.0
       babel-plugin-superjson-next: 0.4.5_75m7oggamdjnfhhmgkdxdhs2c4
@@ -4273,6 +4277,34 @@ packages:
       eslint-visitor-keys: 3.3.0
     dev: true
 
+  /@upstash/core-analytics/0.0.6_encoding@0.1.13:
+    resolution: {integrity: sha512-cpPSR0XJAJs4Ddz9nq3tINlPS5aLfWVCqhhtHnXt4p7qr5+/Znlt1Es736poB/9rnl1hAHrOsOvVj46NEXcVqA==}
+    engines: {node: '>=16.0.0'}
+    dependencies:
+      '@upstash/redis': 1.20.4_encoding@0.1.13
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /@upstash/ratelimit/0.4.2_jpece44psxpj2wbxaplx2blrse:
+    resolution: {integrity: sha512-nuuPK2IoPJywAK/8cosNiyM3vlcL6tFPaAwrLes0j2J5b1Hs/W7XDO72/AuC+K+dt89TP50WK9bvDFUwLRuhvw==}
+    peerDependencies:
+      '@upstash/redis': ^1.20.1
+    dependencies:
+      '@upstash/core-analytics': 0.0.6_encoding@0.1.13
+      '@upstash/redis': 1.20.4_encoding@0.1.13
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /@upstash/redis/1.20.4_encoding@0.1.13:
+    resolution: {integrity: sha512-U7j7py+yPvafB5KS7o+F19j2CWzZCwmQ4Tvs+n2lpCWuw/8CeFtWrFWPtQa5dgrVu6tu+Ki9DmhDiAbgMS5fGA==}
+    dependencies:
+      isomorphic-fetch: 3.0.0_encoding@0.1.13
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
   /@use-gesture/core/10.2.26:
     resolution: {integrity: sha512-NyFpQ3iID9iFBROXyyvU1D0NK+t+dP+WAVByhCvqHUenpxLD2NlRLVRpoK3XGGwksr6mU3PvZ2Nm4q0q+gLJPA==}
     dev: false
@@ -6504,6 +6536,15 @@ packages:
   /isobject/3.0.1:
     resolution: {integrity: sha512-WhB9zCku7EGTj/HQQRz5aUQEUeoQZH2bWcltRErOpymJ4boYE6wL9Tbr23krRPSZ+C5zqNSrSw+Cc7sZZ4b7vg==}
     engines: {node: '>=0.10.0'}
+    dev: false
+
+  /isomorphic-fetch/3.0.0_encoding@0.1.13:
+    resolution: {integrity: sha512-qvUtwJ3j6qwsF3jLxkZ72qCgjMysPzDfeV240JHiGZsANBYd+EEuu35v7dfrJ9Up0Ak07D7GGSkGhCHTqg/5wA==}
+    dependencies:
+      node-fetch: 2.6.9_encoding@0.1.13
+      whatwg-fetch: 3.6.2
+    transitivePeerDependencies:
+      - encoding
     dev: false
 
   /jiti/1.18.2:
@@ -8994,6 +9035,10 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: false
 
+  /whatwg-fetch/3.6.2:
+    resolution: {integrity: sha512-bJlen0FcuU/0EMLrdbJ7zOnW6ITZLrZMIarMUVmdKtsGvZna8vxKYaexICWPfZ8qwf9fzNq+UEIZrnSaApt6RA==}
+    dev: false
+
   /whatwg-url/5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
     dependencies:
@@ -9170,9 +9215,9 @@ packages:
       - supports-color
     dev: false
 
-  github.com/remorses/banana-node-sdk/d4353e35cf5bd33a8e43b3ad4028b111b78e5bf3_undici@5.21.1:
-    resolution: {tarball: https://codeload.github.com/remorses/banana-node-sdk/tar.gz/d4353e35cf5bd33a8e43b3ad4028b111b78e5bf3}
-    id: github.com/remorses/banana-node-sdk/d4353e35cf5bd33a8e43b3ad4028b111b78e5bf3
+  github.com/remorses/banana-node-sdk/2a1d532b99b140872f8f6b52eb7d7a2cdef4838c_undici@5.21.1:
+    resolution: {tarball: https://codeload.github.com/remorses/banana-node-sdk/tar.gz/2a1d532b99b140872f8f6b52eb7d7a2cdef4838c}
+    id: github.com/remorses/banana-node-sdk/2a1d532b99b140872f8f6b52eb7d7a2cdef4838c
     name: '@banana-dev/banana-dev'
     version: 4.1.0
     dependencies:
